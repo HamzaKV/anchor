@@ -1,6 +1,6 @@
 {
   "name": "@varlabs/anchor",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Ensure all checklists are cleared before deployment",
   "author": "HamzaKV <hamzakv333@gmail.com>",
   "repository": "https://github.com/HamzaKV/anchor.git",
@@ -34,7 +34,11 @@
     "typescript": "^5.0.0"
   },
   "peerDependencies": {},
-  "dependencies": { "gray-matter": "^4.0.3", "inquirer": "^12.6.3", "unique-names-generator": "^4.7.1" },
+  "dependencies": {
+    "gray-matter": "^4.0.3",
+    "inquirer": "^12.6.3",
+    "unique-names-generator": "^4.7.1"
+  },
   "keywords": [
     "anchor",
     "checklist",
