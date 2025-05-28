@@ -1,0 +1,56 @@
+{
+  "name": "@varlabs/anchor",
+  "version": "0.1.1",
+  "description": "Ensure all checklists are cleared before deployment",
+  "author": "HamzaKV <hamzakv333@gmail.com>",
+  "repository": "https://github.com/HamzaKV/anchor.git",
+  "license": "MIT",
+  "bin": {
+    "anchor": "./bin/main.js"
+  },
+  "scripts": {
+    "clean": "rimraf ./dist",
+    "copy-files:root": "copyfiles -u 0 README.md package.json LICENSE ./dist",
+    "dev": "tsx --no-cache ./bin/main",
+    "start": "node ./dist/bin/main.js",
+    "build": "bun run clean && tsc && bun run copy-files:root",
+    "test:local": "bun run build && cd ./dist && pnpm link",
+    "git:main": "git checkout \"main\"",
+    "git:push:main": "git push -u origin \"main\" --tags",
+    "patch": "bun run git:main && npm version patch && bun run git:push:main",
+    "minor": "bun run git:main && npm version minor && bun run git:push:main",
+    "major": "bun run git:main && npm version major && bun run git:push:main",
+    "roll": "bun run build && cd dist && npm publish",
+    "roll:patch": "bun run patch && bun run roll",
+    "roll:minor": "bun run minor && bun run roll",
+    "roll:major": "bun run major && bun run roll"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^22.15.17",
+    "copyfiles": "^2.4.1",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.19.4",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {},
+  "dependencies": { "gray-matter": "^4.0.3", "inquirer": "^12.6.3", "unique-names-generator": "^4.7.1" },
+  "keywords": [
+    "anchor",
+    "checklist",
+    "deployment",
+    "pre-deployment",
+    "pre-deployment-checklist",
+    "pre-deployment-checklist-ensurer",
+    "pre-deployment-checklist-ensurer-cli",
+    "pre-deployment-checklist-ensurer-cli-tool",
+    "pre-deployment-checklist-ensurer-cli-toolkit",
+    "deployment-checklist"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
