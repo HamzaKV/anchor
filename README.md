@@ -54,7 +54,7 @@ Interactive setup to create `.anchor/config.json`.
 
 ---
 
-### `anchor set [--env <env>]`
+### `anchor set [--environment <env>]`
 
 Creates a new checklist. Prompts you to:
 
@@ -64,11 +64,11 @@ Creates a new checklist. Prompts you to:
 
 **Optional Flags:**
 
-- `--env <env>`: Filter environments to preselect during prompt
+- `--environment <env>`: Filter environments to preselect during prompt
 
 ---
 
-### `anchor lift [--env <env>]`
+### `anchor lift [--environment <env>]`
 
 Marks checklist(s) as lifted (completed). Automatically:
 
@@ -79,11 +79,11 @@ Marks checklist(s) as lifted (completed). Automatically:
 
 **Optional Flags:**
 
-- `--env <env>`: Only lift checklists relevant to the environment
+- `--environment <env>`: Only lift checklists relevant to the environment
 
 ---
 
-### `anchor status [--env <env>]`
+### `anchor status [--environment <env>]`
 
 Shows the current checklist status for all or specific environments.
 
@@ -111,13 +111,13 @@ Use Anchor in your CI pipeline or Git hooks to enforce:
 Example shell check:
 
 ```bash
-anchor status --env prod
+anchor status --environment prod
 ```
 
 OR
 
 ```bash
-anchor lift --env prod
+anchor lift --environment prod
 ```
 
 ## 🔧 Config File Example
