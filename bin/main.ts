@@ -15,7 +15,12 @@ const { positionals, values } = parseArgs({
             type: 'string',
             short: 'e',
             description: 'The environment to run the application in (e.g., development, production)',
-        }
+        },
+        projects: {
+            type: 'string',
+            short: 'p',
+            description: 'Comma-separated list of projects to include in the checklist',
+        },
     }
 });
 
@@ -29,18 +34,20 @@ if (!command) {
 // strip an equal sign from the environment value if it exists
 const environment = values.environment ? values.environment.replace(/^=/, '') : undefined;
 
+const projects = values.projects ? values.projects.split(',').map(p => p.trim()) : undefined;
+
 switch (command) {
     case 'setup':
         await setupAnchor();
         break;
     case 'set':
-        await setChecklist(environment);
+        await setChecklist(environment, projects);
         break;
     case 'status':
         await printStatus(environment);
         break;
     case 'lift':
-        await liftChecklist(environment);
+        await liftChecklist(environment, projects);
         break;
     default:
         console.error(`Unknown command: ${command}`);

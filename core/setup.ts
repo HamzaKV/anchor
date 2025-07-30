@@ -13,13 +13,20 @@ export const setupAnchor = async () => {
         return;
     }
 
-    const { environments } = await inquirer.prompt<{
+    const { environments, projects } = await inquirer.prompt<{
         environments: string;
+        projects?: string;
     }>([
         {
             type: 'input',
             name: 'environments',
             message: 'Comma-separated list of environments (e.g., dev, staging, prod):'
+        },
+        {
+            type: 'input',
+            name: 'projects',
+            message: 'Comma-separated list of projects to include in the checklist (optional):',
+            default: ''
         }
     ]);
 
@@ -29,7 +36,11 @@ export const setupAnchor = async () => {
     }
 
     const envArray = environments.split(',').map(env => env.trim());
-    const config = { environments: envArray };
+    const projectsArray = projects ? projects.split(',').map(p => p.trim()) : [];
+    const config = { 
+        environments: envArray,
+        projects: projectsArray
+    };
     await writeFile(configPath, JSON.stringify(config, null, 2));
     console.log(`✅ Config written to ${configPath}`);
 };

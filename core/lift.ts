@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { validateChecklistFile } from '../utils/validate-checklist.js';
 import { fileExists } from '../utils/file-exists.js';
 
-export const liftChecklist = async (env?: string) => {
+export const liftChecklist = async (env?: string, projects?: string[]) => {
     const dir = '.anchor/checklists';
 
     if (!(await fileExists(dir))) {
@@ -17,6 +17,10 @@ export const liftChecklist = async (env?: string) => {
         const { data, content } = await validateChecklistFile(join(dir, file));
         if (env && !data.environments.includes(env)) {
             continue; // Skip files not matching the specified environment
+        }
+
+        if (projects && data.projects && !projects.some(p => data.projects.includes(p))) {
+            continue; // Skip files not matching the specified projects
         }
 
         if (!content.includes('[ ]')) {

@@ -4,17 +4,17 @@ import inquirer from 'inquirer';
 import { fileExists } from '../utils/file-exists.js';
 import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
 
-const getEnvironmentsFromConfig = async (): Promise<string[]> => {
+const getEnvironmentsFromConfig = async () => {
     const configPath = join('.anchor', 'config.json');
     if (!await fileExists(configPath)) {
         throw new Error('Config file not found at .anchor/config.json');
     }
     const config = JSON.parse(await readFile(configPath, 'utf-8'));
-    return config.environments || [];
+    return config as { environments: string[]; projects: string[] };
 };
 
-export const setChecklist = async (env?: string) => {
-    const environments = await getEnvironmentsFromConfig();
+export const setChecklist = async (env?: string, proj?: string[]) => {
+    const { environments, projects } = await getEnvironmentsFromConfig();
 
     if (environments.length === 0) {
         console.error('No environments found in the configuration file. Please set up your environments first.');
@@ -24,11 +24,13 @@ export const setChecklist = async (env?: string) => {
     const { 
         checklistName, 
         selectedEnvs, 
+        selectedProjects,
         items, 
         description 
     } = await inquirer.prompt<{
         checklistName: string;
         selectedEnvs: string[];
+        selectedProjects: string[] | undefined;
         items: string;
         description?: string;
     }>([
@@ -43,6 +45,14 @@ export const setChecklist = async (env?: string) => {
             message: 'Which environments does this apply to?',
             choices: environments,
             default: env ? [env] : undefined,
+        },
+        {
+            type: 'checkbox',
+            name: 'selectedProjects',
+            message: 'Select projects to include in the checklist (optional):',
+            choices: projects.length > 0 ? projects : [],
+            default: proj ? proj : [],
+            when: () => projects.length > 0,
         },
         {
             type: 'input',
@@ -69,6 +79,7 @@ name: ${checklistName}
 description: ${description || ''}
 environments: [${env || selectedEnvs.join(', ')}]
 createdAt: ${new Date().toISOString()}
+projects: [${selectedProjects ? selectedProjects.join(', ') : ''}]
 ---
 
 ${items
