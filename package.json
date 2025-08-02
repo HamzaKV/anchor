@@ -4,6 +4,7 @@
   "description": "Ensure all checklists are cleared before deployment",
   "author": "HamzaKV <hamzakv333@gmail.com>",
   "repository": "https://github.com/HamzaKV/anchor.git",
+  "homepage": "https://varlabs.gitbook.io/varlabs-docs/",
   "license": "MIT",
   "bin": {
     "anchor": "./bin/main.js"
