@@ -61,8 +61,13 @@ describe('setupAnchor', () => {
             projects: '',
         } as never);
 
-        await setupAnchor();
+        const exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => {
+            throw new Error(`__process.exit:${code as number}`);
+        });
+
+        await expect(setupAnchor()).rejects.toThrow(/__process.exit:1/);
 
         await expect(stat('.anchor/config.json')).rejects.toThrow();
+        exitSpy.mockRestore();
     });
 });

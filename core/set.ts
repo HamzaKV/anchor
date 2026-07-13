@@ -10,7 +10,12 @@ const getEnvironmentsFromConfig = async () => {
     if (!await fileExists(configPath)) {
         throw new Error('Config file not found at .anchor/config.json');
     }
-    const config = JSON.parse(await readFile(configPath, 'utf-8'));
+    let config: unknown;
+    try {
+        config = JSON.parse(await readFile(configPath, 'utf-8'));
+    } catch {
+        throw new Error(`Config file at ${configPath} is corrupt. Re-run \`anchor setup\`.`);
+    }
     return config as { environments: string[]; projects: string[] };
 };
 
@@ -19,7 +24,7 @@ export const setChecklist = async (env?: string, proj?: string[]) => {
 
     if (environments.length === 0) {
         console.error('No environments found in the configuration file. Please set up your environments first.');
-        return;
+        process.exit(1);
     }
 
     const { 
@@ -69,7 +74,7 @@ export const setChecklist = async (env?: string, proj?: string[]) => {
 
     if (!checklistName || !items) {
         console.error('Checklist name and items are required.');
-        return;
+        process.exit(1);
     }
 
     const dir = '.anchor/checklists';
@@ -83,18 +88,33 @@ export const setChecklist = async (env?: string, proj?: string[]) => {
     const checklist = matter.stringify(`\n${body}\n`, {
         name: checklistName,
         description: description || '',
-        environments: env ? [env] : selectedEnvs,
+        environments: Array.from(new Set([...(env ? [env] : []), ...selectedEnvs])),
         createdAt: new Date().toISOString(),
         projects: selectedProjects || [],
     });
 
-    const checklistFileName = uniqueNamesGenerator({
-        dictionaries: [adjectives, colors, animals],
-        separator: '-',
-        style: 'lowerCase'
-    });
+    const MAX_NAME_ATTEMPTS = 10;
+    let path: string | undefined;
+    for (let attempt = 0; attempt < MAX_NAME_ATTEMPTS; attempt++) {
+        const checklistFileName = uniqueNamesGenerator({
+            dictionaries: [adjectives, colors, animals],
+            separator: '-',
+            style: 'lowerCase'
+        });
+        const candidate = join(dir, `${checklistFileName}.md`);
+        try {
+            await writeFile(candidate, checklist, { flag: 'wx' });
+            path = candidate;
+            break;
+        } catch (err) {
+            if ((err as NodeJS.ErrnoException).code !== 'EEXIST') throw err;
+        }
+    }
 
-    const path = join(dir, `${checklistFileName}.md`)
-    await writeFile(path, checklist)
+    if (!path) {
+        console.error('Could not generate a unique checklist filename. Please try again.');
+        process.exit(1);
+    }
+
     console.log(`Checklist created: ${path}`)
 };

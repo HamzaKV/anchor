@@ -12,6 +12,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { readdir, readFile, writeFile, mkdir, unlink } from 'node:fs/promises';
 import inquirer from 'inquirer';
 import matter from 'gray-matter';
+import { uniqueNamesGenerator } from 'unique-names-generator';
 import { useTempCwd, seedConfig } from '../helpers/temp-dir.js';
 import { setChecklist } from '../../core/set.js';
 
@@ -67,9 +68,39 @@ describe('setChecklist', () => {
         expect(data.description).toContain('environments: []');
     });
 
+    it('retries with a new name when the generated filename already exists', async () => {
+        await mkdir('.anchor/checklists', { recursive: true });
+        await writeFile('.anchor/checklists/mock-name.md', 'existing content');
+
+        vi.mocked(uniqueNamesGenerator)
+            .mockReturnValueOnce('mock-name') // collides with the file above
+            .mockReturnValueOnce('mock-name-2');
+
+        vi.mocked(inquirer.prompt).mockResolvedValueOnce({
+            checklistName: 'pr-collide',
+            selectedEnvs: ['dev'],
+            selectedProjects: [],
+            items: 'thing',
+            description: '',
+        } as never);
+
+        await setChecklist();
+
+        // The pre-existing file must survive untouched, and the new one lands
+        // under the retried name instead of silently overwriting it.
+        expect(await readFile('.anchor/checklists/mock-name.md', 'utf-8')).toBe('existing content');
+        const newContent = await readFile('.anchor/checklists/mock-name-2.md', 'utf-8');
+        expect(newContent).toContain('name: pr-collide');
+    });
+
     it('errors out when config.json is missing', async () => {
         await unlink('.anchor/config.json');
         await expect(setChecklist()).rejects.toThrow(/Config file not found/i);
+    });
+
+    it('errors out cleanly when config.json is corrupt', async () => {
+        await writeFile('.anchor/config.json', '{ not valid json');
+        await expect(setChecklist()).rejects.toThrow(/corrupt.*anchor setup/i);
     });
 
     it('uses --environment to preselect the env checkbox default', async () => {
@@ -120,9 +151,14 @@ describe('setChecklist', () => {
             description: '',
         } as never);
 
-        await setChecklist();
+        const exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => {
+            throw new Error(`__process.exit:${code as number}`);
+        });
+
+        await expect(setChecklist()).rejects.toThrow(/__process.exit:1/);
 
         await expect(readdir('.anchor/checklists')).rejects.toThrow(/ENOENT/);
+        exitSpy.mockRestore();
     });
 
     it('creates .anchor/checklists/ directory if missing', async () => {

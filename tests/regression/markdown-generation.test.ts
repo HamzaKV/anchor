@@ -56,12 +56,11 @@ describe('markdown generation — golden snapshots', () => {
         );
     });
 
-    // BUG TRACKER: core/set.ts writes `environments: [${env || selectedEnvs.join(', ')}]`.
-    // When `--environment=dev` is passed as a filter but the user picks a different env
-    // at the prompt, the filter value silently wins and the user's selection is lost.
-    // Both the explicit assertion below AND the snapshot catch the bug.
-    // When the bug is fixed, the snapshot will need updating via `vitest -u`.
-    it('bug-tracks: --environment filter overrides selectedEnvs (current behaviour)', async () => {
+    // Regression coverage for a fixed bug: core/set.ts used to write
+    // `environments: [${env || selectedEnvs.join(', ')}]`, so an `--environment=dev`
+    // filter silently discarded whatever the user actually selected at the prompt.
+    // Fixed to merge both instead of one clobbering the other.
+    it('merges the --environment filter with the selected envs instead of clobbering them', async () => {
         vi.mocked(inquirer.prompt).mockResolvedValueOnce({
             checklistName: 'pr-bug',
             selectedEnvs: ['staging'],
@@ -70,13 +69,13 @@ describe('markdown generation — golden snapshots', () => {
             description: 'bug repro',
         } as never);
 
-        await setChecklist('dev'); // ← filter says 'dev', user picks 'staging'
+        await setChecklist('dev'); // filter says 'dev', user picks 'staging'
 
         const content = await readFile('.anchor/checklists/golden-pr.md', 'utf-8');
         const { data } = matter(content);
 
         // Strong assertion that survives snapshot deletion.
-        expect(data.environments).toEqual(['dev']);
+        expect(data.environments).toEqual(['dev', 'staging']);
         // Belt-and-braces: lock the timer fix in too so a future Vitest upgrade
         // that stops intercepting `new Date()` can never silently break this test.
         expect(data.createdAt).toBe('2024-06-15T12:00:00.000Z');

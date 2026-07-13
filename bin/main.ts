@@ -36,21 +36,26 @@ const environment = values.environment ? values.environment.replace(/^=/, '') : 
 
 const projects = values.projects ? values.projects.split(',').map(p => p.trim()) : undefined;
 
-switch (command) {
-    case 'setup':
-        await setupAnchor();
-        break;
-    case 'set':
-        await setChecklist(environment, projects);
-        break;
-    case 'status':
-        await printStatus(environment);
-        break;
-    case 'lift':
-        await liftChecklist(environment, projects);
-        break;
-    default:
-        console.error(`Unknown command: ${command}`);
-        console.log('Usage: anchor <setup|set|lift|status> [--environment=<env>]');
-        process.exit(1);
+try {
+    switch (command) {
+        case 'setup':
+            await setupAnchor();
+            break;
+        case 'set':
+            await setChecklist(environment, projects);
+            break;
+        case 'status':
+            await printStatus(environment);
+            break;
+        case 'lift':
+            await liftChecklist(environment, projects);
+            break;
+        default:
+            console.error(`Unknown command: ${command}`);
+            console.log('Usage: anchor <setup|set|lift|status> [--environment=<env>]');
+            process.exit(1);
+    }
+} catch (err) {
+    console.error(`❌  ${(err as Error).message}`);
+    process.exit(1);
 }

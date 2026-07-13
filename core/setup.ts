@@ -1,4 +1,4 @@
-import { writeFile, mkdir } from 'node:fs/promises';
+import { writeFile, rename, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import inquirer from 'inquirer';
 import { fileExists } from '../utils/file-exists.js';
@@ -32,15 +32,19 @@ export const setupAnchor = async () => {
 
     if (!environments) {
         console.error('❌  No environments provided. Setup aborted.');
-        return;
+        process.exit(1);
     }
 
     const envArray = environments.split(',').map(env => env.trim());
     const projectsArray = projects ? projects.split(',').map(p => p.trim()) : [];
-    const config = { 
+    const config = {
         environments: envArray,
         projects: projectsArray
     };
-    await writeFile(configPath, JSON.stringify(config, null, 2));
+
+    // Write via temp file + rename so a crash mid-write can't corrupt config.json.
+    const tmpPath = `${configPath}.${process.pid}.tmp`;
+    await writeFile(tmpPath, JSON.stringify(config, null, 2));
+    await rename(tmpPath, configPath);
     console.log(`✅ Config written to ${configPath}`);
 };
