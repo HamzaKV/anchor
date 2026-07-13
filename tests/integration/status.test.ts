@@ -64,6 +64,25 @@ describe('printStatus', () => {
         logSpy.mockRestore();
     });
 
+    it('skips a malformed checklist without aborting the rest', async () => {
+        await copyChecklistFixture('invalid-line.md');
+        await copyChecklistFixture('completed.md');
+
+        const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+        const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+        await printStatus();
+
+        const lines = logSpy.mock.calls.map((c) => String(c[0])).join('\n');
+        expect(lines).toContain('completed.md');
+        expect(process.exitCode).toBe(1);
+        expect(errorSpy.mock.calls.some((c) => String(c[0]).includes('invalid-line.md'))).toBe(true);
+
+        process.exitCode = 0;
+        errorSpy.mockRestore();
+        logSpy.mockRestore();
+    });
+
     it('does not throw when .anchor/checklists directory missing', async () => {
         await rm('.anchor/checklists', { recursive: true, force: true });
 

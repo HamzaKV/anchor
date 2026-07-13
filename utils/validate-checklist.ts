@@ -10,7 +10,7 @@ export const validateChecklistFile = async (path: string) => {
     }
 
     const lines = parsed.content.split('\n');
-    const checklistLineRegex = /^- \[( |x)\] .+/;
+    const checklistLineRegex = /^- \[( |x|X)\] .+/;
 
     for (const line of lines) {
         if (line.trim() === '') continue;

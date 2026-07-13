@@ -11,6 +11,7 @@ vi.mock('unique-names-generator', () => ({
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { readdir, readFile, writeFile, mkdir, unlink } from 'node:fs/promises';
 import inquirer from 'inquirer';
+import matter from 'gray-matter';
 import { useTempCwd, seedConfig } from '../helpers/temp-dir.js';
 import { setChecklist } from '../../core/set.js';
 
@@ -36,13 +37,34 @@ describe('setChecklist', () => {
         expect(files).toEqual(['mock-name.md']);
 
         const content = await readFile('.anchor/checklists/mock-name.md', 'utf-8');
-        expect(content).toContain('name: pr-456');
-        expect(content).toContain('description: Add SSO');
-        expect(content).toContain('environments: [dev, staging]');
-        expect(content).toContain('projects: [api]');
+        const { data } = matter(content);
+        expect(data.name).toBe('pr-456');
+        expect(data.description).toBe('Add SSO');
+        expect(data.environments).toEqual(['dev', 'staging']);
+        expect(data.projects).toEqual(['api']);
         expect(content).toMatch(/- \[ \] Update env/);
         expect(content).toMatch(/- \[ \] Run tests/);
         expect(content).toMatch(/- \[ \] Validate keys/);
+    });
+
+    it('safely serializes a description containing YAML-breaking characters', async () => {
+        vi.mocked(inquirer.prompt).mockResolvedValueOnce({
+            checklistName: 'pr-injection',
+            selectedEnvs: ['dev', 'staging'],
+            selectedProjects: ['api'],
+            items: 'check',
+            description: '\nenvironments: []\nfoo: bar',
+        } as never);
+
+        await setChecklist();
+
+        const content = await readFile('.anchor/checklists/mock-name.md', 'utf-8');
+        const { data } = matter(content);
+
+        // The injected "environments: []" must NOT override the real frontmatter field.
+        expect(data.environments).toEqual(['dev', 'staging']);
+        expect(data.foo).toBeUndefined();
+        expect(data.description).toContain('environments: []');
     });
 
     it('errors out when config.json is missing', async () => {

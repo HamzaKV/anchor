@@ -37,6 +37,18 @@ describe('validateChecklistFile', () => {
         await expect(validateChecklistFile(dst)).rejects.toThrow(/Invalid checklist line format/);
     });
 
+    it('accepts uppercase [X] as a checked item', async () => {
+        await mkdir(join('.anchor', 'checklists'), { recursive: true });
+        const p = join('.anchor', 'checklists', 'uppercase.md');
+        await writeFile(
+            p,
+            `---\nname: uppercase\ndescription: \nenvironments: [dev]\ncreatedAt: 2024-01-01\nprojects: []\n---\n\n- [X] done\n- [ ] pending\n`,
+        );
+
+        const { content } = await validateChecklistFile(p);
+        expect(content).toMatch(/- \[X\] done/);
+    });
+
     it('tolerates blank lines between items', async () => {
         await mkdir(join('.anchor', 'checklists'), { recursive: true });
         const p = join('.anchor', 'checklists', 'blank-lines.md');

@@ -1,6 +1,7 @@
 import { writeFile, mkdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import inquirer from 'inquirer';
+import matter from 'gray-matter';
 import { fileExists } from '../utils/file-exists.js';
 import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
 
@@ -74,19 +75,18 @@ export const setChecklist = async (env?: string, proj?: string[]) => {
     const dir = '.anchor/checklists';
     if (!await fileExists(dir)) await mkdir(dir, { recursive: true });
 
-    const checklist = `---
-name: ${checklistName}
-description: ${description || ''}
-environments: [${env || selectedEnvs.join(', ')}]
-createdAt: ${new Date().toISOString()}
-projects: [${selectedProjects ? selectedProjects.join(', ') : ''}]
----
+    const body = items
+        .split(',')
+        .map(item => `- [ ] ${item.trim()}`)
+        .join('\n');
 
-${items
-            .split(',')
-            .map(item => `- [ ] ${item.trim()}`)
-            .join('\n')}
-`;
+    const checklist = matter.stringify(`\n${body}\n`, {
+        name: checklistName,
+        description: description || '',
+        environments: env ? [env] : selectedEnvs,
+        createdAt: new Date().toISOString(),
+        projects: selectedProjects || [],
+    });
 
     const checklistFileName = uniqueNamesGenerator({
         dictionaries: [adjectives, colors, animals],

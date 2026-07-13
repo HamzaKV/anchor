@@ -13,6 +13,7 @@ import { readFile } from 'node:fs/promises';
 import { useTempCwd, seedConfig } from '../helpers/temp-dir.js';
 import { setChecklist } from '../../core/set.js';
 import inquirer from 'inquirer';
+import matter from 'gray-matter';
 
 // These snapshots lock the EXACT text the CLI produces. Any future change to
 // core/set.ts formatting produces a clear diff.
@@ -72,13 +73,13 @@ describe('markdown generation — golden snapshots', () => {
         await setChecklist('dev'); // ← filter says 'dev', user picks 'staging'
 
         const content = await readFile('.anchor/checklists/golden-pr.md', 'utf-8');
+        const { data } = matter(content);
 
         // Strong assertion that survives snapshot deletion.
-        expect(content).toContain('environments: [dev]');
-        expect(content).not.toContain('environments: [staging]');
+        expect(data.environments).toEqual(['dev']);
         // Belt-and-braces: lock the timer fix in too so a future Vitest upgrade
         // that stops intercepting `new Date()` can never silently break this test.
-        expect(content).toContain('createdAt: 2024-06-15T12:00:00.000Z');
+        expect(data.createdAt).toBe('2024-06-15T12:00:00.000Z');
 
         // AND a snapshot to catch any further formatting drift.
         await expect(content).toMatchFileSnapshot(

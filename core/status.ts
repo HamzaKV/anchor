@@ -19,7 +19,16 @@ export const printStatus = async (env?: string) => {
     }
 
     for (const file of files) {
-        const { data, content } = await validateChecklistFile(join(dir, file));
+        let data: Awaited<ReturnType<typeof validateChecklistFile>>['data'];
+        let content: string;
+        try {
+            ({ data, content } = await validateChecklistFile(join(dir, file)));
+        } catch (err) {
+            console.error(`❌  Skipping invalid checklist ${file}: ${(err as Error).message}`);
+            process.exitCode = 1;
+            continue;
+        }
+
         if (env && !data.environments.includes(env)) {
             continue; // Skip files not matching the specified environment
         }

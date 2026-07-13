@@ -95,6 +95,26 @@ describe('liftChecklist', () => {
         exitSpy.mockRestore();
     });
 
+    it('skips a malformed checklist without aborting processing of the rest', async () => {
+        await copyChecklistFixture('invalid-line.md'); // throws during validation
+        await copyChecklistFixture('completed.md'); // valid, should still be lifted
+
+        const exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => {
+            throw new Error(`__process.exit:${code as number}`);
+        });
+        const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+        await liftChecklist();
+
+        expect(await readdir('.anchor/checklists')).toEqual(['invalid-line.md']);
+        expect(process.exitCode).toBe(1);
+        expect(errorSpy.mock.calls.some((c) => String(c[0]).includes('invalid-line.md'))).toBe(true);
+
+        process.exitCode = 0;
+        errorSpy.mockRestore();
+        exitSpy.mockRestore();
+    });
+
     it('does not throw when .anchor/checklists directory does not exist', async () => {
         await rm('.anchor/checklists', { recursive: true, force: true });
         await expect(liftChecklist()).resolves.toBeUndefined();
