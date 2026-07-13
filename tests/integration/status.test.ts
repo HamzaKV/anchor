@@ -64,6 +64,32 @@ describe('printStatus', () => {
         logSpy.mockRestore();
     });
 
+    it('filters by --projects', async () => {
+        await copyChecklistFixture('completed.md'); // projects: [api]
+        const docsOnlyContent = [
+            '---',
+            'name: docs-only',
+            'description: docs',
+            'environments: [dev]',
+            'createdAt: 2024-01-01',
+            'projects: [docs]',
+            '---',
+            '',
+            '- [ ] still pending',
+            '',
+        ].join('\n');
+        await writeFile('.anchor/checklists/docs-only.md', docsOnlyContent);
+
+        const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+        await printStatus(undefined, ['docs']);
+
+        const lines = logSpy.mock.calls.map((c) => String(c[0])).join('\n');
+        expect(lines).toContain('docs-only.md');
+        expect(lines).not.toContain('completed.md');
+        logSpy.mockRestore();
+    });
+
     it('skips a malformed checklist without aborting the rest', async () => {
         await copyChecklistFixture('invalid-line.md');
         await copyChecklistFixture('completed.md');

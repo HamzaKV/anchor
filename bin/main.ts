@@ -45,7 +45,7 @@ try {
             await setChecklist(environment, projects);
             break;
         case 'status':
-            await printStatus(environment);
+            await printStatus(environment, projects);
             break;
         case 'lift':
             await liftChecklist(environment, projects);

@@ -64,6 +64,11 @@ createdAt: 2023-10-01
 - [ ] Validate third-party keys
 ```
 
+> ⚠️ Checklists are stored as plain, usually-committed markdown files.
+> Never paste real secret values (API keys, tokens, passwords) into a
+> checklist item — reference where the secret lives instead (e.g. "set
+> STRIPE_KEY in the prod secrets manager"), not the value itself.
+
 ## 🛠️ Commands
 
 ### `anchor setup`
@@ -104,9 +109,9 @@ Marks checklist(s) as lifted (completed). Automatically:
 
 ***
 
-### `anchor status [--environment <env>]`
+### `anchor status [--environment <env>] [--projects <projects>]`
 
-Shows the current checklist status for all or specific environments.
+Shows the current checklist status for all or specific environments/projects.
 
 **Output example:**
 
@@ -130,13 +135,9 @@ Use Anchor in your CI pipeline or Git hooks to enforce:
 * No incomplete checklists before release
 * Fail builds if required environments have unlifted checklists
 
-Example shell check:
-
-```bash
-anchor status --environment prod
-```
-
-OR
+`anchor status` is informational only — it never fails the build, even
+when checklists are pending. To actually gate a release, use `anchor lift`,
+which exits non-zero when any matching checklist still has unchecked items:
 
 ```bash
 anchor lift --environment prod --projects api,docs
