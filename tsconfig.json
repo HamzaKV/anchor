@@ -32,5 +32,7 @@
     "**/*.stories.ts",
     "./examples/**/*",
     "./dist/**/*",
+    "./tests/**/*",
+    "./vitest.config.ts",
   ],
 }

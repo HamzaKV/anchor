@@ -9,6 +9,13 @@
   "bin": {
     "anchor": "./bin/main.js"
   },
+  "files": [
+    "bin",
+    "core",
+    "utils",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "clean": "rimraf ./dist",
     "copy-files:root": "copyfiles -u 0 README.md package.json LICENSE ./dist",
