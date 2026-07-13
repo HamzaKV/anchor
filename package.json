@@ -16,6 +16,14 @@
     "start": "node ./dist/bin/main.js",
     "build": "bun run clean && tsc && bun run copy-files:root",
     "test:local": "bun run build && cd ./dist && pnpm link",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:regression": "vitest run tests/regression",
+    "test:fast": "vitest run --exclude 'tests/e2e/**'",
+    "test:e2e": "bun run build && vitest run tests/e2e",
+    "test:watch": "vitest",
     "git:main": "git checkout \"main\"",
     "git:push:main": "git push -u origin \"main\" --tags",
     "patch": "bun run git:main && npm version patch && bun run git:push:main",
@@ -28,11 +36,14 @@
   },
   "type": "module",
   "devDependencies": {
+    "@types/execa": "^2.0.2",
     "@types/node": "^22.15.17",
     "copyfiles": "^2.4.1",
+    "execa": "^9.6.1",
     "rimraf": "^6.0.1",
     "tsx": "^4.19.4",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vitest": "^4.1.9"
   },
   "peerDependencies": {},
   "dependencies": {
