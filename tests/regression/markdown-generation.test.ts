@@ -10,7 +10,9 @@ vi.mock('unique-names-generator', () => ({
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { useTempCwd, seedConfig } from '../helpers/temp-dir.js';
+import { FIXTURES_DIR } from '../helpers/fixtures.js';
 import { setChecklist } from '../../core/set.js';
 import inquirer from 'inquirer';
 import matter from 'gray-matter';
@@ -52,7 +54,7 @@ describe('markdown generation — golden snapshots', () => {
 
         const content = await readFile('.anchor/checklists/golden-pr.md', 'utf-8');
         await expect(content).toMatchFileSnapshot(
-            'tests/__fixtures__/__snapshots__/typical-checklist.md',
+            join(FIXTURES_DIR, '__snapshots__', 'typical-checklist.md'),
         );
     });
 
@@ -82,7 +84,7 @@ describe('markdown generation — golden snapshots', () => {
 
         // AND a snapshot to catch any further formatting drift.
         await expect(content).toMatchFileSnapshot(
-            'tests/__fixtures__/__snapshots__/bug-env-filter-override.md',
+            join(FIXTURES_DIR, '__snapshots__', 'bug-env-filter-override.md'),
         );
     });
 });

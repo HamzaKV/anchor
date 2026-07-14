@@ -54,6 +54,12 @@ describe('e2e: built CLI (anchor)', () => {
         expect(result.stderr).toMatch(/Unknown command/i);
     });
 
+    it('prints a clean error (not a raw stack trace) for an unrecognized flag', async () => {
+        const result = await execaNode(DIST_BIN, ['status', '--bogus'], { reject: false });
+        expect(result.exitCode).toBe(1);
+        expect(result.stderr).not.toMatch(/at parseArgs|node:internal/);
+    });
+
     it('anchor status (no .anchor dir) prints "Directory not found" and exits 0', async () => {
         const result = await execaNode(DIST_BIN, ['status'], { reject: false });
         expect(result.exitCode).toBe(0);

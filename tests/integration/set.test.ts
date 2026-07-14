@@ -93,6 +93,37 @@ describe('setChecklist', () => {
         expect(newContent).toContain('name: pr-collide');
     });
 
+    it('gives up after MAX_NAME_ATTEMPTS name collisions in a row', async () => {
+        await mkdir('.anchor/checklists', { recursive: true });
+        await writeFile('.anchor/checklists/mock-name.md', 'existing content');
+
+        // Every attempt returns the same colliding name, exhausting all retries.
+        vi.mocked(uniqueNamesGenerator).mockReturnValue('mock-name');
+
+        vi.mocked(inquirer.prompt).mockResolvedValueOnce({
+            checklistName: 'pr-exhausted',
+            selectedEnvs: ['dev'],
+            selectedProjects: [],
+            items: 'thing',
+            description: '',
+        } as never);
+
+        const exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => {
+            throw new Error(`__process.exit:${code as number}`);
+        });
+        const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+        await expect(setChecklist()).rejects.toThrow(/__process.exit:1/);
+
+        expect(errorSpy).toHaveBeenCalledWith(expect.stringMatching(/could not generate a unique checklist filename/i));
+        expect(uniqueNamesGenerator).toHaveBeenCalledTimes(10); // MAX_NAME_ATTEMPTS
+        // The pre-existing file must survive untouched — no partial/overwritten output.
+        expect(await readFile('.anchor/checklists/mock-name.md', 'utf-8')).toBe('existing content');
+
+        exitSpy.mockRestore();
+        errorSpy.mockRestore();
+    });
+
     it('errors out when config.json is missing', async () => {
         await unlink('.anchor/config.json');
         await expect(setChecklist()).rejects.toThrow(/Config file not found/i);

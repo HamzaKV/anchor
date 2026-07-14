@@ -21,7 +21,7 @@
     "copy-files:root": "copyfiles -u 0 README.md package.json LICENSE ./dist",
     "dev": "tsx --no-cache ./bin/main",
     "start": "node ./dist/bin/main.js",
-    "build": "bun run clean && tsc && bun run copy-files:root",
+    "build": "rimraf ./dist && tsc && copyfiles -u 0 README.md package.json LICENSE ./dist",
     "test:local": "bun run build && cd ./dist && pnpm link",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json",
     "test": "vitest run",

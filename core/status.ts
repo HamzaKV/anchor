@@ -33,7 +33,7 @@ export const printStatus = async (env?: string, projects?: string[]) => {
             continue; // Skip files not matching the specified environment
         }
 
-        if (projects && data.projects && !projects.some(p => data.projects.includes(p))) {
+        if (projects && data.projects?.length && !projects.some(p => data.projects.includes(p))) {
             continue; // Skip files not matching the specified projects
         }
 

@@ -25,11 +25,5 @@ export default defineConfig({
         // E2E spawns a child process and -- on cold Windows CI -- can take a while.
         testTimeout: 20_000,
         hookTimeout: 20_000,
-
-        // Anchor snapshot files from project-root-relative paths instead of the
-        // test-file's directory, so `toMatchFileSnapshot('tests/__fixtures__/...')`
-        // resolves to where the file actually lives (rather than nesting under
-        // tests/regression/tests/__fixtures__/...).
-        resolveSnapshotPath: (_testPath, snapshotPath) => snapshotPath,
     },
 });

@@ -37,6 +37,17 @@ describe('validateChecklistFile', () => {
         await expect(validateChecklistFile(dst)).rejects.toThrow(/Invalid checklist line format/);
     });
 
+    it('throws when `projects` is present but not an array', async () => {
+        await mkdir(join('.anchor', 'checklists'), { recursive: true });
+        const p = join('.anchor', 'checklists', 'bad-projects.md');
+        await writeFile(
+            p,
+            `---\nname: bad-projects\ndescription: \nenvironments: [dev]\ncreatedAt: 2024-01-01\nprojects: api\n---\n\n- [x] done\n`,
+        );
+
+        await expect(validateChecklistFile(p)).rejects.toThrow(/projects.*must be an array/i);
+    });
+
     it('accepts uppercase [X] as a checked item', async () => {
         await mkdir(join('.anchor', 'checklists'), { recursive: true });
         const p = join('.anchor', 'checklists', 'uppercase.md');

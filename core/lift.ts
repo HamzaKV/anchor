@@ -12,6 +12,7 @@ export const liftChecklist = async (env?: string, projects?: string[]) => {
     }
 
     const files = (await readdir(dir)).filter(f => f.endsWith('.md'));
+    let hasPending = false;
 
     for (const file of files) {
         let data: Awaited<ReturnType<typeof validateChecklistFile>>['data'];
@@ -28,7 +29,7 @@ export const liftChecklist = async (env?: string, projects?: string[]) => {
             continue; // Skip files not matching the specified environment
         }
 
-        if (projects && data.projects && !projects.some(p => data.projects.includes(p))) {
+        if (projects && data.projects?.length && !projects.some(p => data.projects.includes(p))) {
             continue; // Skip files not matching the specified projects
         }
 
@@ -37,7 +38,11 @@ export const liftChecklist = async (env?: string, projects?: string[]) => {
             console.log(`Checklist completed and removed: ${file}`);
         } else {
             console.error(`❌  Checklist still pending: ${file}`);
-            process.exit(1);
+            hasPending = true;
         }
+    }
+
+    if (hasPending) {
+        process.exit(1);
     }
 };

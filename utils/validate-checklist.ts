@@ -9,6 +9,10 @@ export const validateChecklistFile = async (path: string) => {
         throw new Error(`Invalid frontmatter: 'environments' must be an array in ${path}`);
     }
 
+    if (parsed.data.projects !== undefined && !Array.isArray(parsed.data.projects)) {
+        throw new Error(`Invalid frontmatter: 'projects' must be an array in ${path}`);
+    }
+
     const lines = parsed.content.split('\n');
     const checklistLineRegex = /^- \[( |x|X)\] .+/;
 

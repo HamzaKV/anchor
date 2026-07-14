@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { readdir, writeFile, mkdir, rm } from 'node:fs/promises';
+import { writeFile, mkdir, rm } from 'node:fs/promises';
 import { useTempCwd, seedConfig } from '../helpers/temp-dir.js';
 import { copyChecklistFixture } from '../helpers/fixtures.js';
 import { printStatus } from '../../core/status.js';
@@ -86,6 +86,20 @@ describe('printStatus', () => {
 
         const lines = logSpy.mock.calls.map((c) => String(c[0])).join('\n');
         expect(lines).toContain('docs-only.md');
+        expect(lines).not.toContain('completed.md');
+        logSpy.mockRestore();
+    });
+
+    it('--projects does not exclude a checklist with no project restriction (projects: [])', async () => {
+        await copyChecklistFixture('completed.md'); // projects: [api]
+        await copyChecklistFixture('pending.md'); // projects: []
+
+        const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+        await printStatus(undefined, ['docs']);
+
+        const lines = logSpy.mock.calls.map((c) => String(c[0])).join('\n');
+        expect(lines).toContain('pending.md');
         expect(lines).not.toContain('completed.md');
         logSpy.mockRestore();
     });

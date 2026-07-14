@@ -119,4 +119,71 @@ describe('liftChecklist', () => {
         await rm('.anchor/checklists', { recursive: true, force: true });
         await expect(liftChecklist()).resolves.toBeUndefined();
     });
+
+    it('still lifts a completed checklist that sorts after a pending one', async () => {
+        // readdir returns entries alphabetically on this platform, so naming
+        // controls iteration order: the pending checklist is seen first.
+        const pendingContent = [
+            '---',
+            'name: a-pending',
+            'description: pending',
+            'environments: [dev]',
+            'createdAt: 2024-01-01',
+            'projects: []',
+            '---',
+            '',
+            '- [ ] not done yet',
+            '',
+        ].join('\n');
+        const completedContent = [
+            '---',
+            'name: z-completed',
+            'description: completed',
+            'environments: [dev]',
+            'createdAt: 2024-01-01',
+            'projects: []',
+            '---',
+            '',
+            '- [x] all done',
+            '',
+        ].join('\n');
+        await writeFile('.anchor/checklists/a-pending.md', pendingContent);
+        await writeFile('.anchor/checklists/z-completed.md', completedContent);
+
+        const exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => {
+            throw new Error(`__process.exit:${code as number}`);
+        });
+
+        await expect(liftChecklist()).rejects.toThrow(/__process.exit:1/);
+
+        // The pending checklist blocks the exit code, but must not prevent
+        // the completed one (which sorts later) from being lifted too.
+        expect(await readdir('.anchor/checklists')).toEqual(['a-pending.md']);
+        exitSpy.mockRestore();
+    });
+
+    it('--projects still lifts a checklist with no project restriction (projects: [])', async () => {
+        const content = [
+            '---',
+            'name: no-project-restriction',
+            'description: applies everywhere',
+            'environments: [dev]',
+            'createdAt: 2024-01-01',
+            'projects: []',
+            '---',
+            '',
+            '- [x] done',
+            '',
+        ].join('\n');
+        await writeFile('.anchor/checklists/no-project.md', content);
+
+        const exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => {
+            throw new Error(`__process.exit:${code as number}`);
+        });
+
+        await liftChecklist(undefined, ['api']);
+
+        expect(await readdir('.anchor/checklists')).toEqual([]);
+        exitSpy.mockRestore();
+    });
 });
