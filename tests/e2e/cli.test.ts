@@ -6,7 +6,7 @@
 
 import { describe, it, expect, beforeAll, beforeEach, afterAll } from 'vitest';
 import { execaNode } from 'execa';
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join as pathJoin } from 'node:path';
 import { fileExists } from '../../utils/file-exists.js';
@@ -46,6 +46,21 @@ describe('e2e: built CLI (anchor)', () => {
         const result = await execaNode(DIST_BIN, [], { reject: false });
         expect(result.exitCode).toBe(1);
         expect(result.stderr).toMatch(/No command provided/i);
+    });
+
+    it('--help prints usage and exits 0 instead of a raw parseArgs error', async () => {
+        const result = await execaNode(DIST_BIN, ['--help'], { reject: false });
+        expect(result.exitCode).toBe(0);
+        expect(result.stdout).toMatch(/Usage: anchor/i);
+        expect(result.stderr).not.toMatch(/Unknown option/i);
+    });
+
+    it('--version prints the package.json version and exits 0', async () => {
+        // DIST_BIN is dist/bin/main.js; package.json is copied to dist/package.json by the build.
+        const pkg = JSON.parse(await readFile(pathJoin(DIST_BIN, '..', '..', 'package.json'), 'utf-8'));
+        const result = await execaNode(DIST_BIN, ['--version'], { reject: false });
+        expect(result.exitCode).toBe(0);
+        expect(result.stdout.trim()).toBe(pkg.version);
     });
 
     it('prints an "Unknown command" error for an invalid command', async () => {

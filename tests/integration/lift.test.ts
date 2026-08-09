@@ -62,7 +62,7 @@ describe('liftChecklist', () => {
             throw new Error(`__process.exit:${code as number}`);
         });
 
-        await liftChecklist('dev');
+        await liftChecklist(['dev']);
 
         expect((await readdir('.anchor/checklists')).sort()).toEqual(['prod-only.md']);
         exitSpy.mockRestore();

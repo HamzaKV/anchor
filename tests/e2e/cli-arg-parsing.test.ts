@@ -71,4 +71,16 @@ describe('CLI — arg parsing', () => {
         expect(stdout).toContain('prod-only.md');
         expect(stdout).not.toContain('dev-only.md');
     });
+
+    it('-p=val (short flag with inline equals) strips the leading "=" correctly', () => {
+        const stdout = run(['status', '-p=docs']);
+        expect(stdout).toContain('prod-only.md');
+        expect(stdout).not.toContain('dev-only.md');
+    });
+
+    it('-e dev,prod (comma-separated) matches checklists in either environment', () => {
+        const stdout = run(['status', '-e', 'dev,prod']);
+        expect(stdout).toContain('dev-only.md');
+        expect(stdout).toContain('prod-only.md');
+    });
 });

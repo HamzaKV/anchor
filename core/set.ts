@@ -19,7 +19,7 @@ const getEnvironmentsFromConfig = async () => {
     return config as { environments: string[]; projects: string[] };
 };
 
-export const setChecklist = async (env?: string, proj?: string[]) => {
+export const setChecklist = async (env?: string[], proj?: string[]) => {
     const { environments, projects } = await getEnvironmentsFromConfig();
 
     if (environments.length === 0) {
@@ -50,7 +50,7 @@ export const setChecklist = async (env?: string, proj?: string[]) => {
             name: 'selectedEnvs',
             message: 'Which environments does this apply to?',
             choices: environments,
-            default: env ? [env] : undefined,
+            default: env,
         },
         {
             type: 'checkbox',
@@ -88,7 +88,7 @@ export const setChecklist = async (env?: string, proj?: string[]) => {
     const checklist = matter.stringify(`\n${body}\n`, {
         name: checklistName,
         description: description || '',
-        environments: Array.from(new Set([...(env ? [env] : []), ...selectedEnvs])),
+        environments: Array.from(new Set([...(env ?? []), ...selectedEnvs])),
         createdAt: new Date().toISOString(),
         projects: selectedProjects || [],
     });

@@ -55,7 +55,7 @@ describe('printStatus', () => {
 
         const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
-        await printStatus('staging');
+        await printStatus(['staging']);
 
         const lines = logSpy.mock.calls.map((c) => String(c[0])).join('\n');
         expect(lines).toContain('completed.md');

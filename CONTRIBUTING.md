@@ -28,4 +28,4 @@ Faster local loop while iterating: `npm run test:fast` (skips e2e) or `npm run t
 
 - Keep changes scoped — one fix/feature per PR.
 - Add or update a test for any behavior change, especially bug fixes (see `tests/regression/` for examples of tests written against a specific bug).
-- Update `CHANGELOG.md` under `[Unreleased]`.
+- Add a changeset: `npx changeset` — pick a bump type and describe the change. Don't hand-edit `CHANGELOG.md`; it's generated from changesets when a release is cut (`npx changeset version`).

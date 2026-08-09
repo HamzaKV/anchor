@@ -71,7 +71,7 @@ describe('markdown generation — golden snapshots', () => {
             description: 'bug repro',
         } as never);
 
-        await setChecklist('dev'); // filter says 'dev', user picks 'staging'
+        await setChecklist(['dev']); // filter says 'dev', user picks 'staging'
 
         const content = await readFile('.anchor/checklists/golden-pr.md', 'utf-8');
         const { data } = matter(content);

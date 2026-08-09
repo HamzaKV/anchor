@@ -143,7 +143,7 @@ describe('setChecklist', () => {
             description: 'prod rollout',
         } as never);
 
-        await setChecklist('prod');
+        await setChecklist(['prod']);
 
         const calls = vi.mocked(inquirer.prompt).mock.calls[0]![0] as unknown as Array<{
             name: string;

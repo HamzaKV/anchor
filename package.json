@@ -32,6 +32,7 @@
     "test:fast": "vitest run --exclude 'tests/e2e/**'",
     "test:e2e": "bun run build && vitest run tests/e2e",
     "test:watch": "vitest",
+    "changeset": "changeset",
     "git:main": "git checkout \"main\"",
     "git:push:main": "git push -u origin \"main\" --tags",
     "patch": "bun run git:main && npm version patch && bun run git:push:main",
@@ -44,6 +45,7 @@
   },
   "type": "module",
   "devDependencies": {
+    "@changesets/cli": "^2.31.1",
     "@types/execa": "^2.0.2",
     "@types/node": "^22.15.17",
     "copyfiles": "^2.4.1",
@@ -53,7 +55,6 @@
     "typescript": "^5.0.0",
     "vitest": "^4.1.9"
   },
-  "peerDependencies": {},
   "dependencies": {
     "gray-matter": "^4.0.3",
     "inquirer": "^12.6.3",
