@@ -6,9 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## 1.0.2
+
+### Patch Changes
+
+- 3ef41ac: Fix several CLI correctness bugs and add missing flags:
+
+  - `--projects`/`-p` didn't strip a leading `=` from `-p=<val>` short-flag syntax the way `-e=<val>` did, so `-p=docs` silently matched the literal (nonexistent) project `"=docs"`.
+  - `lift` and `status` detected pending items by checking whether the literal text `[ ]` appeared anywhere in a checklist's content, so a checked item whose own text happened to contain `[ ]` (e.g. `- [x] fix [ ] rendering`) was read as pending forever. Detection is now anchored to the start of a checklist line.
+  - `--environment`/`-e` only ever accepted a single value while `--projects`/`-p` already accepted a comma-separated list, so `--environment dev,staging` looked for one literal environment named `"dev,staging"` instead of matching either. `--environment` now comma-splits and matches on overlap, same as `--projects`.
+  - `anchor --help`/`-h` and `--version`/`-v` previously fell through to `parseArgs`'s strict-mode error and printed a confusing `❌  Unknown option` instead of doing anything useful. Both flags are now handled explicitly.
+  - Extracted the duplicated directory-listing/parse/filter logic shared by `lift` and `status` into `utils/list-checklists.ts`.
+  - CI now runs the test matrix against Node 20 and 22 (previously only 20), matching the `engines.node` `>=20` support claim.
+
 ## [1.0.1] - 2026-08-09
 
 ### Fixed
+
 - `lift` no longer exits early mid-loop on the first pending checklist, skipping checklists that sort after it.
 - `--projects` with an empty array (`projects: []`) no longer wrongly excludes checklists that apply to all projects, in both `lift` and `status`.
 - Unrecognized CLI flags now print a clean one-line error and exit 1 instead of leaking a raw Node stack trace.
@@ -23,11 +37,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `tests/unit/cli-arg-parsing.test.ts` shelled out to `bun`, which no CI runner installs — CI had been red since before this release. Moved it to `tests/e2e` and pointed it at the built `dist/bin/main.js` via plain `node`.
 
 ### Changed
+
 - README's CI recipe no longer presents `anchor status` as a gate equivalent to `anchor lift` — only `lift` enforces a non-zero exit. Added a warning against pasting real secret values into checklist items, since they're committed as plain markdown.
 - Documented the `-e`/`-p` short flag aliases and added `projects:` to the checklist frontmatter example.
 - Added `CONTRIBUTING.md` and `SECURITY.md`.
 
 ### Build
+
 - Fixed CI: `npm test` requires a build first (e2e tests spawn the built CLI), and the build script no longer shells out to `bun`-only commands that aren't installed on the CI runner.
 - Stopped shipping `tests/` and `vitest.config.js` in the published npm package.
 - Committed the test suite, vitest config, and test tooling dependencies — these existed locally but were never committed, so the tagged `1.0.0` release shipped with zero test coverage.
