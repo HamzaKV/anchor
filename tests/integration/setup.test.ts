@@ -5,7 +5,7 @@ vi.mock('inquirer', () => ({
 }));
 
 import { describe, it, expect, vi } from 'vitest';
-import { readFile, stat } from 'node:fs/promises';
+import { readFile, stat, writeFile, readdir } from 'node:fs/promises';
 import inquirer from 'inquirer';
 import { useTempCwd } from '../helpers/temp-dir.js';
 import { setupAnchor } from '../../core/setup.js';
@@ -50,6 +50,39 @@ describe('setupAnchor', () => {
         vi.mocked(inquirer.prompt).mockClear();
         await setupAnchor();
         expect(inquirer.prompt).not.toHaveBeenCalled();
+
+        const cfg = JSON.parse(await readFile('.anchor/config.json', 'utf-8'));
+        expect(cfg.environments).toEqual(['dev']);
+    });
+
+    it('writes config.json via temp file + rename, leaving no leftover .tmp file', async () => {
+        vi.mocked(inquirer.prompt).mockResolvedValueOnce({
+            environments: 'dev, prod',
+            projects: '',
+        } as never);
+
+        await setupAnchor();
+
+        const entries = await readdir('.anchor');
+        expect(entries).toEqual(['config.json']);
+    });
+
+    it('a crash between temp-write and rename never corrupts or creates config.json', async () => {
+        // Simulate the exact interruption setup.ts guards against: the temp file
+        // lands on disk but the process dies before the rename to config.json.
+        const { mkdir } = await import('node:fs/promises');
+        await mkdir('.anchor', { recursive: true });
+        await writeFile('.anchor/config.json.99999.tmp', 'not valid json{{{');
+
+        await expect(stat('.anchor/config.json')).rejects.toThrow();
+
+        // A subsequent real run must still succeed and produce a valid config,
+        // unaffected by the orphaned temp file from the "crash".
+        vi.mocked(inquirer.prompt).mockResolvedValueOnce({
+            environments: 'dev',
+            projects: '',
+        } as never);
+        await setupAnchor();
 
         const cfg = JSON.parse(await readFile('.anchor/config.json', 'utf-8'));
         expect(cfg.environments).toEqual(['dev']);

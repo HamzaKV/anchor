@@ -56,6 +56,7 @@ Each checklist is a Markdown file with frontmatter like:
 name: PR #456
 description: "Add SSO support"
 environments: [dev, staging]
+projects: [api, web]
 createdAt: 2023-10-01
 ---
 
@@ -88,8 +89,8 @@ Creates a new checklist. Prompts you to:
 
 **Optional Flags:**
 
-* `--environment <env>`: Filter environments to preselect during prompt
-* `--projects <projects>`: Filter projects (comma seperated list) to preselect during prompt
+* `--environment <env>` / `-e <env>`: Filter environments to preselect during prompt
+* `--projects <projects>` / `-p <projects>`: Filter projects (comma seperated list) to preselect during prompt
 
 ***
 
@@ -104,8 +105,8 @@ Marks checklist(s) as lifted (completed). Automatically:
 
 **Optional Flags:**
 
-* `--environment <env>`: Only lift checklists relevant to the environment
-* `--projects <projects>`: Filter projects (comma seperated list) to preselect during prompt
+* `--environment <env>` / `-e <env>`: Only lift checklists relevant to the environment
+* `--projects <projects>` / `-p <projects>`: Filter projects (comma seperated list) to preselect during prompt
 
 ***
 

@@ -5,6 +5,7 @@
   "author": "HamzaKV <hamzakv333@gmail.com>",
   "repository": "https://github.com/HamzaKV/anchor.git",
   "homepage": "https://varlabs.gitbook.io/varlabs-docs/",
+  "bugs": "https://github.com/HamzaKV/anchor/issues",
   "license": "MIT",
   "bin": {
     "anchor": "./bin/main.js"
