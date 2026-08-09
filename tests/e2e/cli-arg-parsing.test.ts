@@ -1,15 +1,25 @@
-import { describe, it, expect, afterEach, beforeEach } from 'vitest';
+import { describe, it, expect, afterEach, beforeEach, beforeAll } from 'vitest';
 import { mkdtemp, rm, mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { fileExists } from '../../utils/file-exists.js';
 
 // Exercises bin/main.ts's own arg-parsing quirks (short flags, the `-e=val`
 // equals-stripping hack, and --projects comma-splitting) end-to-end, since
-// none of that logic is exported for unit testing in isolation.
+// none of that logic is exported for unit testing in isolation. Runs against
+// the built CLI (plain `node`) rather than `bun`, which CI runners don't have.
 describe('CLI — arg parsing', () => {
     let root: string;
-    const mainPath = path.join(__dirname, '..', '..', 'bin', 'main.ts');
+    const mainPath = path.join(process.cwd(), 'dist', 'bin', 'main.js');
+
+    beforeAll(async () => {
+        if (!(await fileExists(mainPath))) {
+            throw new Error(
+                `Built CLI not found at ${mainPath}. Run \`npm run build\` first (or \`npm run test:e2e\` which builds automatically).`,
+            );
+        }
+    });
 
     beforeEach(async () => {
         root = await mkdtemp(path.join(tmpdir(), 'anchor-argparse-'));
@@ -36,7 +46,7 @@ describe('CLI — arg parsing', () => {
         await rm(root, { recursive: true, force: true });
     });
 
-    const run = (args: string[]) => execFileSync('bun', [mainPath, ...args], { cwd: root, encoding: 'utf-8' });
+    const run = (args: string[]) => execFileSync(process.execPath, [mainPath, ...args], { cwd: root, encoding: 'utf-8' });
 
     it('-e (short flag, space-separated) filters by environment', () => {
         const stdout = run(['status', '-e', 'dev']);
