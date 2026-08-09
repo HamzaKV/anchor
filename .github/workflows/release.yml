@@ -21,6 +21,6 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
       - run: npm test
-      - run: npm install -g npm@latest # trusted publishing (OIDC) needs npm >=11.5.1
+      - run: npm install -g npm@^11 # trusted publishing (OIDC) needs npm >=11.5.1; npm@latest (12.x) requires Node >=22
       - run: npm publish --provenance
         working-directory: ./dist
