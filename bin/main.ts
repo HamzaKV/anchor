@@ -9,7 +9,7 @@ import { setChecklist } from '../core/set.js';
 import { printStatus } from '../core/status.js';
 import { liftChecklist } from '../core/lift.js';
 
-const USAGE = 'Usage: anchor <setup|set|lift|status> [--environment=<env1,env2>] [--projects=<proj1,proj2>]';
+const USAGE = 'Usage: anchor <setup|set|lift|status> [--environment=<env1,env2>] [--projects=<proj1,proj2>] [--json]';
 
 try {
     const args = process.argv.slice(2);
@@ -41,6 +41,10 @@ try {
                 short: 'p',
                 description: 'Comma-separated list of projects to include in the checklist',
             },
+            json: {
+                type: 'boolean',
+                description: 'Output machine-readable JSON instead of human-readable text',
+            },
         }
     });
 
@@ -56,6 +60,7 @@ try {
 
     const environment = stripEquals(values.environment)?.split(',').map(e => e.trim());
     const projects = stripEquals(values.projects)?.split(',').map(p => p.trim());
+    const json = values.json ?? false;
 
     switch (command) {
         case 'setup':
@@ -65,10 +70,10 @@ try {
             await setChecklist(environment, projects);
             break;
         case 'status':
-            await printStatus(environment, projects);
+            await printStatus(environment, projects, json);
             break;
         case 'lift':
-            await liftChecklist(environment, projects);
+            await liftChecklist(environment, projects, json);
             break;
         default:
             console.error(`Unknown command: ${command}`);
