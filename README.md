@@ -171,6 +171,21 @@ which exits non-zero when any matching checklist still has unchecked items:
 anchor lift --environment prod --projects api,docs
 ```
 
+### Git Hooks
+
+A ready-to-use `pre-push` hook is included at [`examples/pre-push`](./examples/pre-push). It
+runs `anchor lift` and blocks the push if any checklist is still pending.
+
+**Plain git:**
+
+```bash
+cp examples/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push
+```
+
+**husky:**
+
+Copy the same `anchor lift` line into `.husky/pre-push`.
+
 ## 🔧 Config File Example
 
 `.anchor/config.json`

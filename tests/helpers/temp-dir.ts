@@ -39,3 +39,18 @@ export const seedConfig = async (
     };
     await writeFile('.anchor/config.json', JSON.stringify(config, null, 2));
 };
+
+/**
+ * Creates a nested subdirectory under the current cwd and chdirs into it.
+ * Used to test upward `.anchor` discovery: seed `.anchor` at the temp root
+ * (via `seedConfig`), then call this to simulate running a command from a
+ * subdirectory further down the project tree. Cleanup is handled by
+ * `useTempCwd`, which removes the whole temp tree and restores the original
+ * cwd regardless of how deep this nested it.
+ */
+export const chdirIntoSubdir = async (...segments: string[]): Promise<string> => {
+    const subDir = join(process.cwd(), ...segments);
+    await mkdir(subDir, { recursive: true });
+    process.chdir(subDir);
+    return subDir;
+};
