@@ -121,6 +121,33 @@ Shows the current checklist status for all or specific environments/projects.
 📄 hotfix-sso.md — ✅ Complete and removed
 ```
 
+***
+
+### `anchor validate`
+
+Checks that every checklist file under `.anchor/checklists/` is well-formed —
+valid frontmatter and correctly formatted checklist lines. Unlike `status`
+and `lift`, this always checks **every** checklist file, ignoring any
+`--environment`/`--projects` filters: a malformed checklist is a repo-hygiene
+bug regardless of environment.
+
+**Output example:**
+
+```
+❌  Invalid checklist hotfix-sso.md: Invalid frontmatter: 'environments' must be an array in .anchor/checklists/hotfix-sso.md
+```
+
+or, when everything is well-formed:
+
+```
+✅  All checklists valid
+```
+
+Exits non-zero if any checklist is invalid — use it in CI to catch malformed
+checklists before they reach `status` or `lift`.
+
+***
+
 ## 🧪 Validation
 
 Anchor uses strict validation rules for every checklist:
