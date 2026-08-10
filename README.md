@@ -111,6 +111,21 @@ Marks checklist(s) as lifted (completed). Automatically:
 
 ***
 
+### `anchor edit`
+
+Interactively toggle which items on an existing checklist are checked. Prompts you to:
+
+* Pick a checklist from `.anchor/checklists/`
+* Select the items that should be checked (currently-checked items start pre-selected) — unchecking an item you previously checked marks it pending again
+
+Frontmatter and item order are preserved untouched; only the `[ ]` / `[x]` state of each line changes.
+
+> `anchor edit` toggles item state only — it doesn't remove individual items or delete
+> the file. To remove a whole checklist, delete it once every item is complete with
+> `anchor lift`, or remove the markdown file directly.
+
+***
+
 ### `anchor status [--environment <env>] [--projects <projects>] [--json]`
 
 Shows the current checklist status for all or specific environments/projects.
@@ -151,6 +166,33 @@ If the `.anchor/checklists` directory doesn't exist, or no checklists match, `an
 
 `anchor lift` still exits with code `1` if any checklist is still pending, regardless of `--json`.
 
+***
+
+### `anchor validate`
+
+Checks that every checklist file under `.anchor/checklists/` is well-formed —
+valid frontmatter and correctly formatted checklist lines. Unlike `status`
+and `lift`, this always checks **every** checklist file, ignoring any
+`--environment`/`--projects` filters: a malformed checklist is a repo-hygiene
+bug regardless of environment.
+
+**Output example:**
+
+```
+❌  Invalid checklist hotfix-sso.md: Invalid frontmatter: 'environments' must be an array in .anchor/checklists/hotfix-sso.md
+```
+
+or, when everything is well-formed:
+
+```
+✅  All checklists valid
+```
+
+Exits non-zero if any checklist is invalid — use it in CI to catch malformed
+checklists before they reach `status` or `lift`.
+
+***
+
 ## 🧪 Validation
 
 Anchor uses strict validation rules for every checklist:
@@ -173,6 +215,21 @@ which exits non-zero when any matching checklist still has unchecked items:
 ```bash
 anchor lift --environment prod --projects api,docs
 ```
+
+### Git Hooks
+
+A ready-to-use `pre-push` hook is included at [`examples/pre-push`](./examples/pre-push). It
+runs `anchor lift` and blocks the push if any checklist is still pending.
+
+**Plain git:**
+
+```bash
+cp examples/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push
+```
+
+**husky:**
+
+Copy the same `anchor lift` line into `.husky/pre-push`.
 
 ## 🔧 Config File Example
 

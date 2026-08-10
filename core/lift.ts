@@ -1,9 +1,11 @@
 import { unlink } from 'node:fs/promises';
 import { join } from 'node:path';
 import { listChecklists } from '../utils/list-checklists.js';
+import { findAnchorRoot } from '../utils/find-anchor-root.js';
 
 export const liftChecklist = async (env?: string[], projects?: string[], json = false) => {
-    const dir = '.anchor/checklists';
+    const root = await findAnchorRoot();
+    const dir = root ? join(root, '.anchor', 'checklists') : '.anchor/checklists';
 
     const listing = await listChecklists(dir, env, projects);
     if (!listing) {

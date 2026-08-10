@@ -3,10 +3,11 @@ import { join } from 'node:path';
 import inquirer from 'inquirer';
 import matter from 'gray-matter';
 import { fileExists } from '../utils/file-exists.js';
+import { findAnchorRoot } from '../utils/find-anchor-root.js';
 import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
 
-const getEnvironmentsFromConfig = async () => {
-    const configPath = join('.anchor', 'config.json');
+const getEnvironmentsFromConfig = async (root: string | null) => {
+    const configPath = root ? join(root, '.anchor', 'config.json') : join('.anchor', 'config.json');
     if (!await fileExists(configPath)) {
         throw new Error('Config file not found at .anchor/config.json');
     }
@@ -20,7 +21,8 @@ const getEnvironmentsFromConfig = async () => {
 };
 
 export const setChecklist = async (env?: string[], proj?: string[]) => {
-    const { environments, projects } = await getEnvironmentsFromConfig();
+    const root = await findAnchorRoot();
+    const { environments, projects } = await getEnvironmentsFromConfig(root);
 
     if (environments.length === 0) {
         console.error('No environments found in the configuration file. Please set up your environments first.');
@@ -77,7 +79,7 @@ export const setChecklist = async (env?: string[], proj?: string[]) => {
         process.exit(1);
     }
 
-    const dir = '.anchor/checklists';
+    const dir = root ? join(root, '.anchor', 'checklists') : '.anchor/checklists';
     if (!await fileExists(dir)) await mkdir(dir, { recursive: true });
 
     const body = items

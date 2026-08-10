@@ -1,4 +1,4 @@
-import { writeFile, rename, mkdir } from 'node:fs/promises';
+import { writeFile, rename, mkdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import inquirer from 'inquirer';
 import { fileExists } from '../utils/file-exists.js';
@@ -8,9 +8,15 @@ export const setupAnchor = async () => {
     if (!await fileExists(dir)) await mkdir(dir);
 
     const configPath = join(dir, 'config.json');
-    if (await fileExists(configPath)) {
-        console.log(`⚠️  Config file already exists at ${configPath}. Skipping setup.`);
-        return;
+    const configExists = await fileExists(configPath);
+
+    let currentEnvironments: string[] = [];
+    let currentProjects: string[] = [];
+    if (configExists) {
+        console.log(`⚠️  Config file already exists at ${configPath}. Re-prompting to update it.`);
+        const existing = JSON.parse(await readFile(configPath, 'utf-8'));
+        currentEnvironments = Array.isArray(existing.environments) ? existing.environments : [];
+        currentProjects = Array.isArray(existing.projects) ? existing.projects : [];
     }
 
     const { environments, projects } = await inquirer.prompt<{
@@ -20,13 +26,14 @@ export const setupAnchor = async () => {
         {
             type: 'input',
             name: 'environments',
-            message: 'Comma-separated list of environments (e.g., dev, staging, prod):'
+            message: 'Comma-separated list of environments (e.g., dev, staging, prod):',
+            default: currentEnvironments.join(', ')
         },
         {
             type: 'input',
             name: 'projects',
             message: 'Comma-separated list of projects to include in the checklist (optional):',
-            default: ''
+            default: currentProjects.join(', ')
         }
     ]);
 
@@ -46,5 +53,7 @@ export const setupAnchor = async () => {
     const tmpPath = `${configPath}.${process.pid}.tmp`;
     await writeFile(tmpPath, JSON.stringify(config, null, 2));
     await rename(tmpPath, configPath);
-    console.log(`✅ Config written to ${configPath}`);
+    console.log(configExists
+        ? `✅ Config at ${configPath} updated.`
+        : `✅ Config written to ${configPath}`);
 };

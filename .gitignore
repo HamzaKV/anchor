@@ -1,6 +1,5 @@
 # Local dev/tooling state (not part of this repo's own release)
 .serena/
-.anchor/
 
 # Logs
 logs

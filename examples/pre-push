@@ -1,0 +1,15 @@
+#!/bin/sh
+#
+# Example pre-push hook for @varlabs/anchor.
+#
+# Blocks the push if any checklist relevant to the current project is still
+# pending — `anchor lift` exits non-zero when it finds unchecked items.
+#
+# Install (plain git):
+#   cp examples/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push
+#
+# Install (husky):
+#   copy the `anchor lift` line below into .husky/pre-push
+
+anchor lift
+exit $?

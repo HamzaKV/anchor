@@ -40,19 +40,33 @@ describe('setupAnchor', () => {
         expect(cfg.projects).toEqual([]);
     });
 
-    it('is idempotent — second run sees an existing config and skips write', async () => {
+    it('re-running with an existing config re-prompts (pre-filled with current values) and overwrites', async () => {
         vi.mocked(inquirer.prompt).mockResolvedValueOnce({
             environments: 'dev',
-            projects: '',
+            projects: 'api',
         } as never);
         await setupAnchor();
 
         vi.mocked(inquirer.prompt).mockClear();
+        vi.mocked(inquirer.prompt).mockResolvedValueOnce({
+            environments: 'dev, staging',
+            projects: 'api, docs',
+        } as never);
         await setupAnchor();
-        expect(inquirer.prompt).not.toHaveBeenCalled();
+
+        expect(inquirer.prompt).toHaveBeenCalledTimes(1);
+        const questions = vi.mocked(inquirer.prompt).mock.calls[0][0] as unknown as Array<{
+            name: string;
+            default?: string;
+        }>;
+        const environmentsQuestion = questions.find(q => q.name === 'environments');
+        const projectsQuestion = questions.find(q => q.name === 'projects');
+        expect(environmentsQuestion?.default).toBe('dev');
+        expect(projectsQuestion?.default).toBe('api');
 
         const cfg = JSON.parse(await readFile('.anchor/config.json', 'utf-8'));
-        expect(cfg.environments).toEqual(['dev']);
+        expect(cfg.environments).toEqual(['dev', 'staging']);
+        expect(cfg.projects).toEqual(['api', 'docs']);
     });
 
     it('writes config.json via temp file + rename, leaving no leftover .tmp file', async () => {
