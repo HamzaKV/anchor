@@ -45,6 +45,7 @@ describe('e2e: published package contents', () => {
             'core/status.js',
             'package.json',
             'utils/file-exists.js',
+            'utils/find-anchor-root.js',
             'utils/list-checklists.js',
             'utils/validate-checklist.js',
         ]);

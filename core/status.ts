@@ -1,7 +1,10 @@
+import { join } from 'node:path';
 import { listChecklists } from '../utils/list-checklists.js';
+import { findAnchorRoot } from '../utils/find-anchor-root.js';
 
 export const printStatus = async (env?: string[], projects?: string[]) => {
-    const dir = '.anchor/checklists';
+    const root = await findAnchorRoot();
+    const dir = root ? join(root, '.anchor', 'checklists') : '.anchor/checklists';
 
     const listing = await listChecklists(dir, env, projects);
     if (!listing) {
