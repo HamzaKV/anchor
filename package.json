@@ -25,6 +25,8 @@
     "build": "rimraf ./dist && tsc && copyfiles -u 0 README.md package.json LICENSE ./dist",
     "test:local": "bun run build && cd ./dist && pnpm link",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json",
+    "lint": "biome check .",
+    "format": "biome format --write .",
     "test": "vitest run",
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
@@ -45,6 +47,7 @@
   },
   "type": "module",
   "devDependencies": {
+    "@biomejs/biome": "2.5.7",
     "@changesets/cli": "^2.31.1",
     "@types/execa": "^2.0.2",
     "@types/node": "^22.15.17",

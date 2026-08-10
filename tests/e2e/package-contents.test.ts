@@ -14,26 +14,24 @@ const DIST_DIR = pathJoin(process.cwd(), 'dist');
 describe('e2e: published package contents', () => {
     beforeAll(async () => {
         if (!(await fileExists(DIST_DIR))) {
-            throw new Error(
-                `dist/ not found. Run \`bun run build\` first (or \`npm run test:e2e\` which builds automatically).`,
-            );
+            throw new Error(`dist/ not found. Run \`bun run build\` first (or \`npm run test:e2e\` which builds automatically).`);
         }
     });
 
     it('excludes tests, vitest config, and tsconfig from the packed tarball', async () => {
         const { stdout } = await execa('npm', ['pack', '--dry-run', '--json'], { cwd: DIST_DIR });
         const [{ files }] = JSON.parse(stdout) as { files: { path: string }[] }[];
-        const paths = files.map((f) => f.path);
+        const paths = files.map(f => f.path);
 
         for (const forbidden of [/^tests\//, /^vitest\.config\./, /^tsconfig/]) {
-            expect(paths.some((p) => forbidden.test(p))).toBe(false);
+            expect(paths.some(p => forbidden.test(p))).toBe(false);
         }
     });
 
     it('ships exactly the files declared', async () => {
         const { stdout } = await execa('npm', ['pack', '--dry-run', '--json'], { cwd: DIST_DIR });
         const [{ files }] = JSON.parse(stdout) as { files: { path: string }[] }[];
-        const paths = files.map((f) => f.path).sort();
+        const paths = files.map(f => f.path).sort();
 
         expect(paths).toEqual([
             'LICENSE',

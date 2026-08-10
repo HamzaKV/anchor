@@ -1,1 +1,2 @@
-examples/pre-push text eol=lf
+* text=auto eol=lf
+bun.lockb binary

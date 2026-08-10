@@ -37,7 +37,7 @@ describe('examples/pre-push', () => {
         expect(stdout).toMatch(/^100755\b/);
     });
 
-    it('is valid POSIX shell syntax', async (ctx) => {
+    it('is valid POSIX shell syntax', async ctx => {
         if (!shAvailable) {
             ctx.skip();
             return;

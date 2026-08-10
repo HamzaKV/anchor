@@ -19,7 +19,7 @@ describe('liftChecklist', () => {
         await copyChecklistFixture('completed.md');
 
         // Block real process.exit so the runner stays alive on the failure path.
-        const exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => {
+        const exitSpy = vi.spyOn(process, 'exit').mockImplementation(code => {
             throw new Error(`__process.exit:${code as number}`);
         });
 
@@ -32,7 +32,7 @@ describe('liftChecklist', () => {
     it('exits with code 1 when any checklist is still pending', async () => {
         await copyChecklistFixture('pending.md');
 
-        const exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => {
+        const exitSpy = vi.spyOn(process, 'exit').mockImplementation(code => {
             throw new Error(`__process.exit:${code as number}`);
         });
 
@@ -58,7 +58,7 @@ describe('liftChecklist', () => {
         ].join('\n');
         await writeFile('.anchor/checklists/prod-only.md', prodOnlyContent);
 
-        const exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => {
+        const exitSpy = vi.spyOn(process, 'exit').mockImplementation(code => {
             throw new Error(`__process.exit:${code as number}`);
         });
 
@@ -84,7 +84,7 @@ describe('liftChecklist', () => {
         ].join('\n');
         await writeFile('.anchor/checklists/docs-only.md', docsOnlyContent);
 
-        const exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => {
+        const exitSpy = vi.spyOn(process, 'exit').mockImplementation(code => {
             throw new Error(`__process.exit:${code as number}`);
         });
 
@@ -99,7 +99,7 @@ describe('liftChecklist', () => {
         await copyChecklistFixture('invalid-line.md'); // throws during validation
         await copyChecklistFixture('completed.md'); // valid, should still be lifted
 
-        const exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => {
+        const exitSpy = vi.spyOn(process, 'exit').mockImplementation(code => {
             throw new Error(`__process.exit:${code as number}`);
         });
         const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -108,7 +108,7 @@ describe('liftChecklist', () => {
 
         expect(await readdir('.anchor/checklists')).toEqual(['invalid-line.md']);
         expect(process.exitCode).toBe(1);
-        expect(errorSpy.mock.calls.some((c) => String(c[0]).includes('invalid-line.md'))).toBe(true);
+        expect(errorSpy.mock.calls.some(c => String(c[0]).includes('invalid-line.md'))).toBe(true);
 
         process.exitCode = 0;
         errorSpy.mockRestore();
@@ -150,7 +150,7 @@ describe('liftChecklist', () => {
         await writeFile('.anchor/checklists/a-pending.md', pendingContent);
         await writeFile('.anchor/checklists/z-completed.md', completedContent);
 
-        const exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => {
+        const exitSpy = vi.spyOn(process, 'exit').mockImplementation(code => {
             throw new Error(`__process.exit:${code as number}`);
         });
 
@@ -177,7 +177,7 @@ describe('liftChecklist', () => {
         ].join('\n');
         await writeFile('.anchor/checklists/no-project.md', content);
 
-        const exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => {
+        const exitSpy = vi.spyOn(process, 'exit').mockImplementation(code => {
             throw new Error(`__process.exit:${code as number}`);
         });
 

@@ -22,7 +22,7 @@
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false,
+    "noPropertyAccessFromIndexSignature": false
   },
   "exclude": [
     "node_modules",
@@ -33,6 +33,6 @@
     "./examples/**/*",
     "./dist/**/*",
     "./tests/**/*",
-    "./vitest.config.ts",
-  ],
+    "./vitest.config.ts"
+  ]
 }

@@ -97,13 +97,11 @@ describe('editChecklist', () => {
         await editChecklist();
 
         const updated = await readFile('.anchor/checklists/order-check.md', 'utf-8');
-        const lines = matter(updated).content.split('\n').filter((l) => l.trim() !== '');
+        const lines = matter(updated)
+            .content.split('\n')
+            .filter(l => l.trim() !== '');
 
-        expect(lines).toEqual([
-            '- [ ] first',
-            '- [ ] second',
-            '- [x] third',
-        ]);
+        expect(lines).toEqual(['- [ ] first', '- [ ] second', '- [x] third']);
     });
 
     it('prints a message and returns when no checklists exist', async () => {

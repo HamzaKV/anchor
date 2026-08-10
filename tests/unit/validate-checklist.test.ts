@@ -40,10 +40,7 @@ describe('validateChecklistFile', () => {
     it('throws when `projects` is present but not an array', async () => {
         await mkdir(join('.anchor', 'checklists'), { recursive: true });
         const p = join('.anchor', 'checklists', 'bad-projects.md');
-        await writeFile(
-            p,
-            `---\nname: bad-projects\ndescription: \nenvironments: [dev]\ncreatedAt: 2024-01-01\nprojects: api\n---\n\n- [x] done\n`,
-        );
+        await writeFile(p, `---\nname: bad-projects\ndescription: \nenvironments: [dev]\ncreatedAt: 2024-01-01\nprojects: api\n---\n\n- [x] done\n`);
 
         await expect(validateChecklistFile(p)).rejects.toThrow(/projects.*must be an array/i);
     });
@@ -51,10 +48,7 @@ describe('validateChecklistFile', () => {
     it('accepts uppercase [X] as a checked item', async () => {
         await mkdir(join('.anchor', 'checklists'), { recursive: true });
         const p = join('.anchor', 'checklists', 'uppercase.md');
-        await writeFile(
-            p,
-            `---\nname: uppercase\ndescription: \nenvironments: [dev]\ncreatedAt: 2024-01-01\nprojects: []\n---\n\n- [X] done\n- [ ] pending\n`,
-        );
+        await writeFile(p, `---\nname: uppercase\ndescription: \nenvironments: [dev]\ncreatedAt: 2024-01-01\nprojects: []\n---\n\n- [X] done\n- [ ] pending\n`);
 
         const { content } = await validateChecklistFile(p);
         expect(content).toMatch(/- \[X\] done/);
@@ -63,13 +57,10 @@ describe('validateChecklistFile', () => {
     it('tolerates blank lines between items', async () => {
         await mkdir(join('.anchor', 'checklists'), { recursive: true });
         const p = join('.anchor', 'checklists', 'blank-lines.md');
-        await writeFile(
-            p,
-            `---\nname: blank\ndescription: \nenvironments: [dev]\ncreatedAt: 2024-01-01\nprojects: []\n---\n\n- [x] ok\n\n- [x] also ok\n`,
-        );
+        await writeFile(p, `---\nname: blank\ndescription: \nenvironments: [dev]\ncreatedAt: 2024-01-01\nprojects: []\n---\n\n- [x] ok\n\n- [x] also ok\n`);
 
         const { data, content } = await validateChecklistFile(p);
         expect(data.environments).toEqual(['dev']);
-        expect(content.split('\n').filter((l) => l.includes('- [x]')).length).toBe(2);
+        expect(content.split('\n').filter(l => l.includes('- [x]')).length).toBe(2);
     });
 });

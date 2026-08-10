@@ -53,9 +53,7 @@ describe('markdown generation — golden snapshots', () => {
         await setChecklist();
 
         const content = await readFile('.anchor/checklists/golden-pr.md', 'utf-8');
-        await expect(content).toMatchFileSnapshot(
-            join(FIXTURES_DIR, '__snapshots__', 'typical-checklist.md'),
-        );
+        await expect(content).toMatchFileSnapshot(join(FIXTURES_DIR, '__snapshots__', 'typical-checklist.md'));
     });
 
     // Regression coverage for a fixed bug: core/set.ts used to write
@@ -83,8 +81,6 @@ describe('markdown generation — golden snapshots', () => {
         expect(data.createdAt).toBe('2024-06-15T12:00:00.000Z');
 
         // AND a snapshot to catch any further formatting drift.
-        await expect(content).toMatchFileSnapshot(
-            join(FIXTURES_DIR, '__snapshots__', 'bug-env-filter-override.md'),
-        );
+        await expect(content).toMatchFileSnapshot(join(FIXTURES_DIR, '__snapshots__', 'bug-env-filter-override.md'));
     });
 });
