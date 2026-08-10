@@ -110,6 +110,21 @@ Marks checklist(s) as lifted (completed). Automatically:
 
 ***
 
+### `anchor edit`
+
+Interactively toggle which items on an existing checklist are checked. Prompts you to:
+
+* Pick a checklist from `.anchor/checklists/`
+* Select the items that should be checked (currently-checked items start pre-selected) — unchecking an item you previously checked marks it pending again
+
+Frontmatter and item order are preserved untouched; only the `[ ]` / `[x]` state of each line changes.
+
+> `anchor edit` toggles item state only — it doesn't remove individual items or delete
+> the file. To remove a whole checklist, delete it once every item is complete with
+> `anchor lift`, or remove the markdown file directly.
+
+***
+
 ### `anchor status [--environment <env>] [--projects <projects>]`
 
 Shows the current checklist status for all or specific environments/projects.
