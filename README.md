@@ -94,7 +94,7 @@ Creates a new checklist. Prompts you to:
 
 ***
 
-### `anchor lift [--environment <env>] [--projects <projects>]`
+### `anchor lift [--environment <env>] [--projects <projects>] [--json]`
 
 Marks checklist(s) as lifted (completed). Automatically:
 
@@ -107,6 +107,7 @@ Marks checklist(s) as lifted (completed). Automatically:
 
 * `--environment <env>` / `-e <env>`: Only lift checklists relevant to the environment
 * `--projects <projects>` / `-p <projects>`: Filter projects (comma seperated list) to preselect during prompt
+* `--json`: Print a single JSON array instead of human-readable text (see below). File deletion behavior and exit codes are unchanged.
 
 ***
 
@@ -125,9 +126,15 @@ Frontmatter and item order are preserved untouched; only the `[ ]` / `[x]` state
 
 ***
 
-### `anchor status [--environment <env>] [--projects <projects>]`
+### `anchor status [--environment <env>] [--projects <projects>] [--json]`
 
 Shows the current checklist status for all or specific environments/projects.
+
+**Optional Flags:**
+
+* `--environment <env>` / `-e <env>`: Only show checklists relevant to the environment
+* `--projects <projects>` / `-p <projects>`: Filter projects (comma seperated list)
+* `--json`: Print a single JSON array instead of human-readable text (see below)
 
 **Output example:**
 
@@ -135,6 +142,29 @@ Shows the current checklist status for all or specific environments/projects.
 📄 pr-456.md — 1 done / 2 pending
 📄 hotfix-sso.md — ✅ Complete and removed
 ```
+
+**`--json` output:**
+
+`anchor status --json` fully replaces stdout with a single JSON array, one object per checklist:
+
+```json
+[
+  { "file": "pr-456.md", "doneCount": 1, "pendingCount": 2, "environments": ["dev"], "projects": ["api"] }
+]
+```
+
+If the `.anchor/checklists` directory doesn't exist, or no checklists match, `anchor status --json` prints `[]`.
+
+`anchor lift --json` fully replaces stdout with a single JSON array, one object per checklist, reporting whether it was removed or is still pending:
+
+```json
+[
+  { "file": "pr-456.md", "status": "pending" },
+  { "file": "hotfix-sso.md", "status": "removed" }
+]
+```
+
+`anchor lift` still exits with code `1` if any checklist is still pending, regardless of `--json`.
 
 ***
 
