@@ -8,9 +8,10 @@ import { setupAnchor } from '../core/setup.js';
 import { setChecklist } from '../core/set.js';
 import { printStatus } from '../core/status.js';
 import { liftChecklist } from '../core/lift.js';
+import { editChecklist } from '../core/edit.js';
 import { validateAllChecklists } from '../core/validate.js';
 
-const USAGE = 'Usage: anchor <setup|set|lift|status|validate> [--environment=<env1,env2>] [--projects=<proj1,proj2>]';
+const USAGE = 'Usage: anchor <setup|set|lift|status|edit|validate> [--environment=<env1,env2>] [--projects=<proj1,proj2>]';
 
 try {
     const args = process.argv.slice(2);
@@ -70,6 +71,9 @@ try {
             break;
         case 'lift':
             await liftChecklist(environment, projects);
+            break;
+        case 'edit':
+            await editChecklist();
             break;
         case 'validate':
             await validateAllChecklists();

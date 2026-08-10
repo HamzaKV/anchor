@@ -39,6 +39,7 @@ describe('e2e: published package contents', () => {
             'LICENSE',
             'README.md',
             'bin/main.js',
+            'core/edit.js',
             'core/lift.js',
             'core/set.js',
             'core/setup.js',
