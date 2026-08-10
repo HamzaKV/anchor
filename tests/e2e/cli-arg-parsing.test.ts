@@ -15,29 +15,40 @@ describe('CLI — arg parsing', () => {
 
     beforeAll(async () => {
         if (!(await fileExists(mainPath))) {
-            throw new Error(
-                `Built CLI not found at ${mainPath}. Run \`npm run build\` first (or \`npm run test:e2e\` which builds automatically).`,
-            );
+            throw new Error(`Built CLI not found at ${mainPath}. Run \`npm run build\` first (or \`npm run test:e2e\` which builds automatically).`);
         }
     });
 
     beforeEach(async () => {
         root = await mkdtemp(path.join(tmpdir(), 'anchor-argparse-'));
         await mkdir(path.join(root, '.anchor', 'checklists'), { recursive: true });
-        await writeFile(
-            path.join(root, '.anchor', 'config.json'),
-            JSON.stringify({ environments: ['dev', 'prod'], projects: ['api', 'docs'] }),
-        );
+        await writeFile(path.join(root, '.anchor', 'config.json'), JSON.stringify({ environments: ['dev', 'prod'], projects: ['api', 'docs'] }));
 
         const devContent = [
-            '---', 'name: dev-only', 'description: ', 'environments: [dev]',
-            'createdAt: 2024-01-01', 'projects: [api]', '---', '', '- [x] done', '',
+            '---',
+            'name: dev-only',
+            'description: ',
+            'environments: [dev]',
+            'createdAt: 2024-01-01',
+            'projects: [api]',
+            '---',
+            '',
+            '- [x] done',
+            '',
         ].join('\n');
         await writeFile(path.join(root, '.anchor', 'checklists', 'dev-only.md'), devContent);
 
         const prodContent = [
-            '---', 'name: prod-only', 'description: ', 'environments: [prod]',
-            'createdAt: 2024-01-01', 'projects: [docs]', '---', '', '- [x] done', '',
+            '---',
+            'name: prod-only',
+            'description: ',
+            'environments: [prod]',
+            'createdAt: 2024-01-01',
+            'projects: [docs]',
+            '---',
+            '',
+            '- [x] done',
+            '',
         ].join('\n');
         await writeFile(path.join(root, '.anchor', 'checklists', 'prod-only.md'), prodContent);
     });

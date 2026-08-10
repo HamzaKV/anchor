@@ -8,7 +8,7 @@ import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-
 
 const getEnvironmentsFromConfig = async (root: string | null) => {
     const configPath = root ? join(root, '.anchor', 'config.json') : join('.anchor', 'config.json');
-    if (!await fileExists(configPath)) {
+    if (!(await fileExists(configPath))) {
         throw new Error('Config file not found at .anchor/config.json');
     }
     let config: unknown;
@@ -29,13 +29,7 @@ export const setChecklist = async (env?: string[], proj?: string[]) => {
         process.exit(1);
     }
 
-    const { 
-        checklistName, 
-        selectedEnvs, 
-        selectedProjects,
-        items, 
-        description 
-    } = await inquirer.prompt<{
+    const { checklistName, selectedEnvs, selectedProjects, items, description } = await inquirer.prompt<{
         checklistName: string;
         selectedEnvs: string[];
         selectedProjects: string[] | undefined;
@@ -45,7 +39,7 @@ export const setChecklist = async (env?: string[], proj?: string[]) => {
         {
             type: 'input',
             name: 'checklistName',
-            message: 'Checklist name (e.g., pr-123):'
+            message: 'Checklist name (e.g., pr-123):',
         },
         {
             type: 'checkbox',
@@ -65,13 +59,13 @@ export const setChecklist = async (env?: string[], proj?: string[]) => {
         {
             type: 'input',
             name: 'items',
-            message: 'Checklist items (comma separated):'
+            message: 'Checklist items (comma separated):',
         },
         {
             type: 'input',
             name: 'description',
             message: 'Description for the checklist (optional):',
-        }
+        },
     ]);
 
     if (!checklistName || !items) {
@@ -80,7 +74,7 @@ export const setChecklist = async (env?: string[], proj?: string[]) => {
     }
 
     const dir = root ? join(root, '.anchor', 'checklists') : '.anchor/checklists';
-    if (!await fileExists(dir)) await mkdir(dir, { recursive: true });
+    if (!(await fileExists(dir))) await mkdir(dir, { recursive: true });
 
     const body = items
         .split(',')
@@ -101,7 +95,7 @@ export const setChecklist = async (env?: string[], proj?: string[]) => {
         const checklistFileName = uniqueNamesGenerator({
             dictionaries: [adjectives, colors, animals],
             separator: '-',
-            style: 'lowerCase'
+            style: 'lowerCase',
         });
         const candidate = join(dir, `${checklistFileName}.md`);
         try {
@@ -118,5 +112,5 @@ export const setChecklist = async (env?: string[], proj?: string[]) => {
         process.exit(1);
     }
 
-    console.log(`Checklist created: ${path}`)
+    console.log(`Checklist created: ${path}`);
 };

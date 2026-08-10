@@ -20,11 +20,7 @@ export type ChecklistListing = {
 };
 
 // Returns null when the checklists directory doesn't exist.
-export const listChecklists = async (
-    dir: string,
-    env?: string[],
-    projects?: string[],
-): Promise<ChecklistListing | null> => {
+export const listChecklists = async (dir: string, env?: string[], projects?: string[]): Promise<ChecklistListing | null> => {
     if (!(await fileExists(dir))) {
         return null;
     }

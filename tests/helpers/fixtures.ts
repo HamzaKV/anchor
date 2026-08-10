@@ -16,10 +16,7 @@ export const FIXTURES_DIR = join(PROJECT_ROOT, 'tests', '__fixtures__');
  * into the current `.anchor/checklists/` directory. Use absolute paths under
  * the hood because tests mutate `process.cwd()` before each run.
  */
-export const copyChecklistFixture = async (
-    name: string,
-    destDir: string = '.anchor/checklists',
-): Promise<string> => {
+export const copyChecklistFixture = async (name: string, destDir: string = '.anchor/checklists'): Promise<string> => {
     await mkdir(destDir, { recursive: true });
     const src = join(FIXTURES_DIR, 'checklists', name);
     const dst = join(destDir, name);

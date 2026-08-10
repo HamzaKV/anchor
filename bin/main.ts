@@ -47,7 +47,7 @@ try {
                 type: 'boolean',
                 description: 'Output machine-readable JSON instead of human-readable text',
             },
-        }
+        },
     });
 
     const command = positionals[0];
@@ -58,10 +58,14 @@ try {
     }
 
     // strip a leading equal sign left over from short-flag `-e=val`/`-p=val` syntax
-    const stripEquals = (value?: string) => value ? value.replace(/^=/, '') : undefined;
+    const stripEquals = (value?: string) => (value ? value.replace(/^=/, '') : undefined);
 
-    const environment = stripEquals(values.environment)?.split(',').map(e => e.trim());
-    const projects = stripEquals(values.projects)?.split(',').map(p => p.trim());
+    const environment = stripEquals(values.environment)
+        ?.split(',')
+        .map(e => e.trim());
+    const projects = stripEquals(values.projects)
+        ?.split(',')
+        .map(p => p.trim());
     const json = values.json ?? false;
 
     switch (command) {

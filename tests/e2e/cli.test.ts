@@ -34,9 +34,7 @@ const e2eEnv = () => {
 describe('e2e: built CLI (anchor)', () => {
     beforeAll(async () => {
         if (!(await fileExists(DIST_BIN))) {
-            throw new Error(
-                `Built CLI not found at ${DIST_BIN}. Run \`bun run build\` first (or \`npm run test:e2e\` which builds automatically).`,
-            );
+            throw new Error(`Built CLI not found at ${DIST_BIN}. Run \`bun run build\` first (or \`npm run test:e2e\` which builds automatically).`);
         }
     });
 

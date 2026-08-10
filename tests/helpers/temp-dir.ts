@@ -29,9 +29,7 @@ export const useTempCwd = () => {
  * Seeds a valid `.anchor/config.json` so commands that read config (set/lift/status)
  * won't error out.
  */
-export const seedConfig = async (
-    overrides: { environments?: string[]; projects?: string[] } = {},
-): Promise<void> => {
+export const seedConfig = async (overrides: { environments?: string[]; projects?: string[] } = {}): Promise<void> => {
     await mkdir('.anchor', { recursive: true });
     const config = {
         environments: overrides.environments ?? ['dev', 'staging', 'prod'],

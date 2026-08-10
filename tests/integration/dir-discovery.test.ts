@@ -36,7 +36,7 @@ describe('upward .anchor discovery', () => {
 
         const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
         await printStatus();
-        const lines = logSpy.mock.calls.map((c) => String(c[0])).join('\n');
+        const lines = logSpy.mock.calls.map(c => String(c[0])).join('\n');
         expect(lines).toMatch(/completed\.md.*2 done \/ 0 pending/);
         logSpy.mockRestore();
     });
@@ -49,7 +49,7 @@ describe('upward .anchor discovery', () => {
 
         await chdirIntoSubdir('nested', 'deeper');
 
-        const exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => {
+        const exitSpy = vi.spyOn(process, 'exit').mockImplementation(code => {
             throw new Error(`__process.exit:${code as number}`);
         });
 

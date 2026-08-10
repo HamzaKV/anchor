@@ -28,9 +28,7 @@ const e2eEnv = () => {
 describe('e2e: --json output', () => {
     beforeAll(async () => {
         if (!(await fileExists(DIST_BIN))) {
-            throw new Error(
-                `Built CLI not found at ${DIST_BIN}. Run \`npm run build\` first (or \`npm run test:e2e\` which builds automatically).`,
-            );
+            throw new Error(`Built CLI not found at ${DIST_BIN}. Run \`npm run build\` first (or \`npm run test:e2e\` which builds automatically).`);
         }
     });
 
@@ -86,17 +84,7 @@ describe('e2e: --json output', () => {
 
     it('anchor status --json normalizes a missing "projects" frontmatter key to an empty array', async () => {
         await mkdir('.anchor/checklists', { recursive: true });
-        const content = [
-            '---',
-            'name: no-projects',
-            'description: ',
-            'environments: [dev]',
-            'createdAt: 2024-01-01',
-            '---',
-            '',
-            '- [x] first',
-            '',
-        ].join('\n');
+        const content = ['---', 'name: no-projects', 'description: ', 'environments: [dev]', 'createdAt: 2024-01-01', '---', '', '- [x] first', ''].join('\n');
         await writeFile('.anchor/checklists/no-projects.md', content);
 
         const result = await execaNode(DIST_BIN, ['status', '--json'], { reject: false });

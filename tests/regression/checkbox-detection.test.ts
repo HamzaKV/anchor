@@ -30,7 +30,7 @@ describe('checkbox detection ignores "[ ]" inside item text', () => {
         await mkdir('.anchor/checklists', { recursive: true });
         await writeFile('.anchor/checklists/literal-brackets.md', content);
 
-        const exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => {
+        const exitSpy = vi.spyOn(process, 'exit').mockImplementation(code => {
             throw new Error(`__process.exit:${code as number}`);
         });
 

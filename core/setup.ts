@@ -5,7 +5,7 @@ import { fileExists } from '../utils/file-exists.js';
 
 export const setupAnchor = async () => {
     const dir = '.anchor';
-    if (!await fileExists(dir)) await mkdir(dir);
+    if (!(await fileExists(dir))) await mkdir(dir);
 
     const configPath = join(dir, 'config.json');
     const configExists = await fileExists(configPath);
@@ -27,14 +27,14 @@ export const setupAnchor = async () => {
             type: 'input',
             name: 'environments',
             message: 'Comma-separated list of environments (e.g., dev, staging, prod):',
-            default: currentEnvironments.join(', ')
+            default: currentEnvironments.join(', '),
         },
         {
             type: 'input',
             name: 'projects',
             message: 'Comma-separated list of projects to include in the checklist (optional):',
-            default: currentProjects.join(', ')
-        }
+            default: currentProjects.join(', '),
+        },
     ]);
 
     if (!environments) {
@@ -46,14 +46,12 @@ export const setupAnchor = async () => {
     const projectsArray = projects ? projects.split(',').map(p => p.trim()) : [];
     const config = {
         environments: envArray,
-        projects: projectsArray
+        projects: projectsArray,
     };
 
     // Write via temp file + rename so a crash mid-write can't corrupt config.json.
     const tmpPath = `${configPath}.${process.pid}.tmp`;
     await writeFile(tmpPath, JSON.stringify(config, null, 2));
     await rename(tmpPath, configPath);
-    console.log(configExists
-        ? `✅ Config at ${configPath} updated.`
-        : `✅ Config written to ${configPath}`);
+    console.log(configExists ? `✅ Config at ${configPath} updated.` : `✅ Config written to ${configPath}`);
 };

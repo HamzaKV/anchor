@@ -108,7 +108,7 @@ describe('setupAnchor', () => {
             projects: '',
         } as never);
 
-        const exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => {
+        const exitSpy = vi.spyOn(process, 'exit').mockImplementation(code => {
             throw new Error(`__process.exit:${code as number}`);
         });
 

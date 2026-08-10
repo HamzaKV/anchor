@@ -108,7 +108,7 @@ describe('setChecklist', () => {
             description: '',
         } as never);
 
-        const exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => {
+        const exitSpy = vi.spyOn(process, 'exit').mockImplementation(code => {
             throw new Error(`__process.exit:${code as number}`);
         });
         const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -149,15 +149,12 @@ describe('setChecklist', () => {
             name: string;
             default?: unknown;
         }>;
-        const envPrompt = calls.find((q) => q.name === 'selectedEnvs');
+        const envPrompt = calls.find(q => q.name === 'selectedEnvs');
         expect(envPrompt?.default).toEqual(['prod']);
     });
 
     it('writes empty projects list when no projects in config', async () => {
-        await writeFile(
-            '.anchor/config.json',
-            JSON.stringify({ environments: ['dev'], projects: [] }, null, 2),
-        );
+        await writeFile('.anchor/config.json', JSON.stringify({ environments: ['dev'], projects: [] }, null, 2));
 
         vi.mocked(inquirer.prompt).mockResolvedValueOnce({
             checklistName: 'pr-no-proj',
@@ -182,7 +179,7 @@ describe('setChecklist', () => {
             description: '',
         } as never);
 
-        const exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => {
+        const exitSpy = vi.spyOn(process, 'exit').mockImplementation(code => {
             throw new Error(`__process.exit:${code as number}`);
         });
 

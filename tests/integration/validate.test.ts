@@ -19,14 +19,14 @@ describe('validateAllChecklists', () => {
         await copyChecklistFixture('completed.md');
         await copyChecklistFixture('pending.md');
 
-        const exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => {
+        const exitSpy = vi.spyOn(process, 'exit').mockImplementation(code => {
             throw new Error(`__process.exit:${code as number}`);
         });
         const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
         await validateAllChecklists();
 
-        const lines = logSpy.mock.calls.map((c) => String(c[0])).join('\n');
+        const lines = logSpy.mock.calls.map(c => String(c[0])).join('\n');
         expect(lines).toMatch(/All checklists valid/);
         expect(exitSpy).not.toHaveBeenCalled();
 
@@ -38,7 +38,7 @@ describe('validateAllChecklists', () => {
         await copyChecklistFixture('invalid-line.md'); // malformed checklist line
         await copyChecklistFixture('completed.md'); // valid
 
-        const exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => {
+        const exitSpy = vi.spyOn(process, 'exit').mockImplementation(code => {
             throw new Error(`__process.exit:${code as number}`);
         });
         const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -46,10 +46,10 @@ describe('validateAllChecklists', () => {
 
         await expect(validateAllChecklists()).rejects.toThrow(/__process.exit:1/);
 
-        expect(errorSpy.mock.calls.some((c) => String(c[0]).includes('invalid-line.md'))).toBe(true);
-        expect(errorSpy.mock.calls.some((c) => String(c[0]).includes('completed.md'))).toBe(false);
+        expect(errorSpy.mock.calls.some(c => String(c[0]).includes('invalid-line.md'))).toBe(true);
+        expect(errorSpy.mock.calls.some(c => String(c[0]).includes('completed.md'))).toBe(false);
         // Success message must not print once any checklist is invalid.
-        expect(logSpy.mock.calls.some((c) => String(c[0]).match(/All checklists valid/))).toBe(false);
+        expect(logSpy.mock.calls.some(c => String(c[0]).match(/All checklists valid/))).toBe(false);
 
         logSpy.mockRestore();
         errorSpy.mockRestore();
@@ -63,7 +63,7 @@ describe('validateAllChecklists', () => {
 
         await expect(validateAllChecklists()).resolves.toBeUndefined();
 
-        const lines = logSpy.mock.calls.map((c) => String(c[0])).join('\n');
+        const lines = logSpy.mock.calls.map(c => String(c[0])).join('\n');
         expect(lines).toContain('Directory not found');
 
         logSpy.mockRestore();
@@ -77,7 +77,7 @@ describe('validateAllChecklists', () => {
         // still be checked and reported.
         await copyChecklistFixture('missing-env-array.md');
 
-        const exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => {
+        const exitSpy = vi.spyOn(process, 'exit').mockImplementation(code => {
             throw new Error(`__process.exit:${code as number}`);
         });
         const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -85,7 +85,7 @@ describe('validateAllChecklists', () => {
 
         await expect(validateAllChecklists()).rejects.toThrow(/__process.exit:1/);
 
-        expect(errorSpy.mock.calls.some((c) => String(c[0]).includes('missing-env-array.md'))).toBe(true);
+        expect(errorSpy.mock.calls.some(c => String(c[0]).includes('missing-env-array.md'))).toBe(true);
 
         logSpy.mockRestore();
         errorSpy.mockRestore();

@@ -17,7 +17,7 @@ describe('printStatus', () => {
 
         await printStatus();
 
-        const all = logSpy.mock.calls.map((c) => String(c[0])).join('\n');
+        const all = logSpy.mock.calls.map(c => String(c[0])).join('\n');
         expect(all).toMatch(/No checklists/);
         logSpy.mockRestore();
     });
@@ -30,7 +30,7 @@ describe('printStatus', () => {
 
         await printStatus();
 
-        const lines = logSpy.mock.calls.map((c) => String(c[0])).join('\n');
+        const lines = logSpy.mock.calls.map(c => String(c[0])).join('\n');
         expect(lines).toMatch(/completed\.md.*2 done \/ 0 pending/);
         expect(lines).toMatch(/pending\.md.*1 done \/ 1 pending/);
         logSpy.mockRestore();
@@ -57,7 +57,7 @@ describe('printStatus', () => {
 
         await printStatus(['staging']);
 
-        const lines = logSpy.mock.calls.map((c) => String(c[0])).join('\n');
+        const lines = logSpy.mock.calls.map(c => String(c[0])).join('\n');
         expect(lines).toContain('completed.md');
         expect(lines).toContain('pending.md');
         expect(lines).not.toContain('prod-only.md');
@@ -84,7 +84,7 @@ describe('printStatus', () => {
 
         await printStatus(undefined, ['docs']);
 
-        const lines = logSpy.mock.calls.map((c) => String(c[0])).join('\n');
+        const lines = logSpy.mock.calls.map(c => String(c[0])).join('\n');
         expect(lines).toContain('docs-only.md');
         expect(lines).not.toContain('completed.md');
         logSpy.mockRestore();
@@ -98,7 +98,7 @@ describe('printStatus', () => {
 
         await printStatus(undefined, ['docs']);
 
-        const lines = logSpy.mock.calls.map((c) => String(c[0])).join('\n');
+        const lines = logSpy.mock.calls.map(c => String(c[0])).join('\n');
         expect(lines).toContain('pending.md');
         expect(lines).not.toContain('completed.md');
         logSpy.mockRestore();
@@ -113,10 +113,10 @@ describe('printStatus', () => {
 
         await printStatus();
 
-        const lines = logSpy.mock.calls.map((c) => String(c[0])).join('\n');
+        const lines = logSpy.mock.calls.map(c => String(c[0])).join('\n');
         expect(lines).toContain('completed.md');
         expect(process.exitCode).toBe(1);
-        expect(errorSpy.mock.calls.some((c) => String(c[0]).includes('invalid-line.md'))).toBe(true);
+        expect(errorSpy.mock.calls.some(c => String(c[0]).includes('invalid-line.md'))).toBe(true);
 
         process.exitCode = 0;
         errorSpy.mockRestore();
