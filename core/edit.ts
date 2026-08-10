@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import inquirer from 'inquirer';
 import matter from 'gray-matter';
 import { listChecklists } from '../utils/list-checklists.js';
+import { findAnchorRoot } from '../utils/find-anchor-root.js';
 
 // Matches a single checklist item line, capturing the check state (group 1)
 // and the item text (group 2). The trailing `\r?` tolerates CRLF-checked-out
@@ -10,7 +11,8 @@ import { listChecklists } from '../utils/list-checklists.js';
 const ITEM_LINE = /^- \[( |x|X)\] (.+?)\r?$/;
 
 export const editChecklist = async () => {
-    const dir = '.anchor/checklists';
+    const root = await findAnchorRoot();
+    const dir = root ? join(root, '.anchor', 'checklists') : '.anchor/checklists';
 
     const listing = await listChecklists(dir);
     if (!listing) {
