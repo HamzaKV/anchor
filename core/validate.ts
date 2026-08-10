@@ -2,12 +2,14 @@ import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { validateChecklistFile } from '../utils/validate-checklist.js';
 import { fileExists } from '../utils/file-exists.js';
+import { findAnchorRoot } from '../utils/find-anchor-root.js';
 
 // Validates every checklist file under .anchor/checklists/, ignoring any
 // environment/project filters — a malformed checklist is a repo-hygiene bug
 // regardless of environment, so this always checks the full set of files.
 export const validateAllChecklists = async () => {
-    const dir = '.anchor/checklists';
+    const root = await findAnchorRoot();
+    const dir = root ? join(root, '.anchor', 'checklists') : '.anchor/checklists';
 
     if (!(await fileExists(dir))) {
         console.log(`Directory not found: ${dir}`);

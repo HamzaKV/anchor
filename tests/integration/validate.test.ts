@@ -56,7 +56,7 @@ describe('validateAllChecklists', () => {
         exitSpy.mockRestore();
     });
 
-    it('reports the same "Directory not found" message as status/lift when the checklists directory is missing', async () => {
+    it('does not throw when .anchor/checklists directory missing, same convention as status/lift', async () => {
         await rm('.anchor/checklists', { recursive: true, force: true });
 
         const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -64,7 +64,7 @@ describe('validateAllChecklists', () => {
         await expect(validateAllChecklists()).resolves.toBeUndefined();
 
         const lines = logSpy.mock.calls.map((c) => String(c[0])).join('\n');
-        expect(lines).toContain('Directory not found: .anchor/checklists');
+        expect(lines).toContain('Directory not found');
 
         logSpy.mockRestore();
     });
