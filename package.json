@@ -52,7 +52,7 @@
     "@changesets/cli": "^2.31.1",
     "@vitest/coverage-v8": "^4.1.9",
     "@types/execa": "^2.0.2",
-    "@types/node": "^22.15.17",
+    "@types/node": "^26.2.0",
     "copyfiles": "^2.4.1",
     "execa": "^9.6.1",
     "rimraf": "^6.0.1",
