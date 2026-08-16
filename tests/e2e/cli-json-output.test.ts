@@ -149,4 +149,28 @@ describe('e2e: --json output', () => {
         expect(parsed).toEqual([{ file: 'not-ready.md', status: 'pending' }]);
         expect(await fileExists('.anchor/checklists/not-ready.md')).toBe(true);
     });
+
+    it('anchor lift --json --dry-run reports "would-remove" and does not delete the file', async () => {
+        await mkdir('.anchor/checklists', { recursive: true });
+        const content = [
+            '---',
+            'name: all-done',
+            'description: ',
+            'environments: [dev]',
+            'createdAt: 2024-01-01',
+            'projects: []',
+            '---',
+            '',
+            '- [x] only item',
+            '',
+        ].join('\n');
+        await writeFile('.anchor/checklists/all-done.md', content);
+
+        const result = await execaNode(DIST_BIN, ['lift', '--json', '--dry-run'], { reject: false });
+        expect(result.exitCode).toBe(0);
+
+        const parsed = JSON.parse(result.stdout);
+        expect(parsed).toEqual([{ file: 'all-done.md', status: 'would-remove' }]);
+        expect(await fileExists('.anchor/checklists/all-done.md')).toBe(true);
+    });
 });

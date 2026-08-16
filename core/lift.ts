@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { listChecklists } from '../utils/list-checklists.js';
 import { findAnchorRoot } from '../utils/find-anchor-root.js';
 
-export const liftChecklist = async (env?: string[], projects?: string[], json = false) => {
+export const liftChecklist = async (env?: string[], projects?: string[], json = false, dryRun = false) => {
     const root = await findAnchorRoot();
     const dir = root ? join(root, '.anchor', 'checklists') : '.anchor/checklists';
 
@@ -18,10 +18,18 @@ export const liftChecklist = async (env?: string[], projects?: string[], json = 
     }
 
     let hasPending = false;
-    const results: { file: string; status: 'removed' | 'pending' }[] = [];
+    const results: { file: string; status: 'removed' | 'would-remove' | 'pending' }[] = [];
 
     for (const { file, pendingCount } of listing.entries) {
         if (pendingCount === 0) {
+            if (dryRun) {
+                if (json) {
+                    results.push({ file, status: 'would-remove' });
+                } else {
+                    console.log(`Would remove completed checklist: ${file}`);
+                }
+                continue;
+            }
             await unlink(join(dir, file));
             if (json) {
                 results.push({ file, status: 'removed' });

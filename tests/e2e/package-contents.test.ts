@@ -39,6 +39,7 @@ describe('e2e: published package contents', () => {
             'bin/main.js',
             'core/edit.js',
             'core/lift.js',
+            'core/rm.js',
             'core/set.js',
             'core/setup.js',
             'core/status.js',

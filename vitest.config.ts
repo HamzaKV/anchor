@@ -25,5 +25,10 @@ export default defineConfig({
         // E2E spawns a child process and -- on cold Windows CI -- can take a while.
         testTimeout: 20_000,
         hookTimeout: 20_000,
+
+        coverage: {
+            provider: 'v8',
+            include: ['bin/**', 'core/**', 'utils/**'],
+        },
     },
 });

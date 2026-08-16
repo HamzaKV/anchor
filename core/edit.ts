@@ -39,8 +39,7 @@ export const editChecklist = async () => {
 
     const entry = listing.entries.find(({ file }) => file === selectedFile);
     if (!entry) {
-        console.error(`Checklist not found: ${selectedFile}`);
-        process.exit(1);
+        throw new Error(`Checklist not found: ${selectedFile}`);
     }
 
     const lines = entry.content.split('\n');

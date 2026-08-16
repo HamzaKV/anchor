@@ -108,20 +108,11 @@ describe('setChecklist', () => {
             description: '',
         } as never);
 
-        const exitSpy = vi.spyOn(process, 'exit').mockImplementation(code => {
-            throw new Error(`__process.exit:${code as number}`);
-        });
-        const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+        await expect(setChecklist()).rejects.toThrow(/could not generate a unique checklist filename/i);
 
-        await expect(setChecklist()).rejects.toThrow(/__process.exit:1/);
-
-        expect(errorSpy).toHaveBeenCalledWith(expect.stringMatching(/could not generate a unique checklist filename/i));
         expect(uniqueNamesGenerator).toHaveBeenCalledTimes(10); // MAX_NAME_ATTEMPTS
         // The pre-existing file must survive untouched — no partial/overwritten output.
         expect(await readFile('.anchor/checklists/mock-name.md', 'utf-8')).toBe('existing content');
-
-        exitSpy.mockRestore();
-        errorSpy.mockRestore();
     });
 
     it('errors out when config.json is missing', async () => {
@@ -179,14 +170,28 @@ describe('setChecklist', () => {
             description: '',
         } as never);
 
-        const exitSpy = vi.spyOn(process, 'exit').mockImplementation(code => {
-            throw new Error(`__process.exit:${code as number}`);
-        });
-
-        await expect(setChecklist()).rejects.toThrow(/__process.exit:1/);
+        await expect(setChecklist()).rejects.toThrow(/Checklist name and items are required/);
 
         await expect(readdir('.anchor/checklists')).rejects.toThrow(/ENOENT/);
-        exitSpy.mockRestore();
+    });
+
+    it('non-interactive: creates a checklist from --name/--items without touching inquirer', async () => {
+        await setChecklist(['dev', 'staging'], ['api'], { name: 'pr-999', items: 'a, b', description: 'scripted' });
+
+        expect(inquirer.prompt).not.toHaveBeenCalled();
+
+        const content = await readFile('.anchor/checklists/mock-name.md', 'utf-8');
+        const { data } = matter(content);
+        expect(data.name).toBe('pr-999');
+        expect(data.description).toBe('scripted');
+        expect(data.environments).toEqual(['dev', 'staging']);
+        expect(data.projects).toEqual(['api']);
+        expect(content).toMatch(/- \[ \] a/);
+        expect(content).toMatch(/- \[ \] b/);
+    });
+
+    it('non-interactive: throws when name or items missing', async () => {
+        await expect(setChecklist(undefined, undefined, { name: '', items: 'a' })).rejects.toThrow(/Checklist name and items are required/);
     });
 
     it('creates .anchor/checklists/ directory if missing', async () => {

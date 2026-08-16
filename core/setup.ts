@@ -38,8 +38,7 @@ export const setupAnchor = async () => {
     ]);
 
     if (!environments) {
-        console.error('❌  No environments provided. Setup aborted.');
-        process.exit(1);
+        throw new Error('No environments provided. Setup aborted.');
     }
 
     const envArray = environments.split(',').map(env => env.trim());

@@ -1,12 +1,12 @@
-// KNOWN E2E GAP: `anchor setup` and `anchor set` are interactive flows that
-// require a TTY (inquirer assumes TTY for cursor movement). Piped stdin over
-// child_process.spawn often hangs on Windows inquirer. These commands are
-// covered by tests/integration/* with mocked prompts. To extend E2E coverage
-// here, see the TODO at the bottom of this file.
+// KNOWN E2E GAP: `anchor setup` and interactive `anchor set` are TTY-bound
+// flows (inquirer assumes TTY for cursor movement); piped stdin over
+// child_process.spawn often hangs on Windows inquirer. They're covered by
+// tests/integration/* with mocked prompts instead. `anchor set --name --items`
+// bypasses inquirer entirely, so that path IS covered here below.
 
 import { describe, it, expect, beforeAll, beforeEach, afterAll } from 'vitest';
 import { execaNode } from 'execa';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join as pathJoin } from 'node:path';
 import { fileExists } from '../../utils/file-exists.js';
@@ -144,7 +144,81 @@ describe('e2e: built CLI (anchor)', () => {
         expect(result.stderr).toMatch(/Checklist still pending/);
     });
 
-    // TODO(extend-e2e): cover `anchor setup` and `anchor set` once a TTY-safe
-    // answer-piping strategy is chosen (e.g., split stdin via `expect`-style
-    // answers, or refactor bin/main.ts to accept answers via env vars).
+    it('anchor set --name --items creates a checklist without a TTY', async () => {
+        await mkdir('.anchor', { recursive: true });
+        await writeFile('.anchor/config.json', JSON.stringify({ environments: ['dev'], projects: [] }));
+
+        const result = await execaNode(DIST_BIN, ['set', '--name', 'pr-1', '--items', 'a,b', '--environment', 'dev'], { reject: false });
+        expect(result.exitCode).toBe(0);
+        expect(result.stdout).toMatch(/Checklist created/);
+
+        const files = await readdir('.anchor/checklists');
+        expect(files).toHaveLength(1);
+    });
+
+    it('anchor set with only --name (no --items) exits 1 with a clear error', async () => {
+        await mkdir('.anchor', { recursive: true });
+        await writeFile('.anchor/config.json', JSON.stringify({ environments: ['dev'], projects: [] }));
+
+        const result = await execaNode(DIST_BIN, ['set', '--name', 'pr-1'], { reject: false });
+        expect(result.exitCode).toBe(1);
+        expect(result.stderr).toMatch(/--name and --items must be provided together/);
+    });
+
+    it('anchor lift --dry-run previews without deleting, still exits 0', async () => {
+        await mkdir('.anchor/checklists', { recursive: true });
+        const content = [
+            '---',
+            'name: all-done',
+            'description: ',
+            'environments: [dev]',
+            'createdAt: 2024-01-01',
+            'projects: []',
+            '---',
+            '',
+            '- [x] only item',
+            '',
+        ].join('\n');
+        await writeFile('.anchor/checklists/all-done.md', content);
+
+        const result = await execaNode(DIST_BIN, ['lift', '--dry-run'], { reject: false });
+        expect(result.exitCode).toBe(0);
+        expect(result.stdout).toMatch(/Would remove completed checklist: all-done\.md/);
+        expect(await fileExists('.anchor/checklists/all-done.md')).toBe(true);
+    });
+
+    it('anchor rm deletes a checklist regardless of pending items', async () => {
+        await mkdir('.anchor/checklists', { recursive: true });
+        const content = [
+            '---',
+            'name: mid-flight',
+            'description: ',
+            'environments: [dev]',
+            'createdAt: 2024-01-01',
+            'projects: []',
+            '---',
+            '',
+            '- [ ] not done',
+            '',
+        ].join('\n');
+        await writeFile('.anchor/checklists/mid-flight.md', content);
+
+        const result = await execaNode(DIST_BIN, ['rm', 'mid-flight'], { reject: false });
+        expect(result.exitCode).toBe(0);
+        expect(result.stdout).toMatch(/Checklist removed: mid-flight\.md/);
+        expect(await fileExists('.anchor/checklists/mid-flight.md')).toBe(false);
+    });
+
+    it('anchor rm on a nonexistent checklist exits 1', async () => {
+        const result = await execaNode(DIST_BIN, ['rm', 'nope'], { reject: false });
+        expect(result.exitCode).toBe(1);
+        expect(result.stderr).toMatch(/Checklist not found: nope\.md/);
+    });
+
+    it('anchor lift --help prints command-specific usage and exits 0', async () => {
+        const result = await execaNode(DIST_BIN, ['lift', '--help'], { reject: false });
+        expect(result.exitCode).toBe(0);
+        expect(result.stdout).toMatch(/Usage: anchor lift/);
+        expect(result.stdout).toMatch(/--dry-run/);
+    });
 });

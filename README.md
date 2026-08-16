@@ -72,13 +72,15 @@ createdAt: 2023-10-01
 
 ## 🛠️ Commands
 
+Run `anchor <command> --help` for a command's flags at any time.
+
 ### `anchor setup`
 
 Interactive setup to create `.anchor/config.json`.
 
 ***
 
-### `anchor set [--environment <env>] [--projects <projects>]`
+### `anchor set [--environment <env>] [--projects <projects>] [--name <name> --items <items>] [--description <text>]`
 
 Creates a new checklist. Prompts you to:
 
@@ -89,12 +91,17 @@ Creates a new checklist. Prompts you to:
 
 **Optional Flags:**
 
-* `--environment <env>` / `-e <env>`: Filter environments to preselect during prompt
-* `--projects <projects>` / `-p <projects>`: Filter projects (comma seperated list) to preselect during prompt
+* `--environment <env>` / `-e <env>`: Filter environments to preselect during prompt (or, combined with `--name`/`--items` below, the environments applied directly)
+* `--projects <projects>` / `-p <projects>`: Filter projects (comma seperated list) to preselect during prompt (or applied directly, see below)
+* `--name <name>` and `--items <items>`: Skip the interactive prompt entirely and create the checklist non-interactively — useful for scripting checklist creation in CI. Both flags are required together; `--environment`/`--projects` supply the environments/projects, and `--description <text>` is optional.
+
+```bash
+anchor set --name pr-456 --items "Update .env,Run DB migration" --environment prod --projects api
+```
 
 ***
 
-### `anchor lift [--environment <env>] [--projects <projects>] [--json]`
+### `anchor lift [--environment <env>] [--projects <projects>] [--json] [--dry-run]`
 
 Marks checklist(s) as lifted (completed). Automatically:
 
@@ -108,6 +115,17 @@ Marks checklist(s) as lifted (completed). Automatically:
 * `--environment <env>` / `-e <env>`: Only lift checklists relevant to the environment
 * `--projects <projects>` / `-p <projects>`: Filter projects (comma seperated list) to preselect during prompt
 * `--json`: Print a single JSON array instead of human-readable text (see below). File deletion behavior and exit codes are unchanged.
+* `--dry-run`: Preview which checklists would be removed without deleting anything. The pending-checklist exit code (`1`) still applies, so it's safe to use in CI to check what a real `lift` would do.
+
+***
+
+### `anchor rm <name>`
+
+Deletes a checklist by filename (with or without the `.md` extension), regardless of whether its items are complete. Unlike `anchor lift`, this doesn't require the checklist to be finished first — use it to discard a checklist you no longer need.
+
+```bash
+anchor rm pr-456
+```
 
 ***
 
@@ -122,7 +140,7 @@ Frontmatter and item order are preserved untouched; only the `[ ]` / `[x]` state
 
 > `anchor edit` toggles item state only — it doesn't remove individual items or delete
 > the file. To remove a whole checklist, delete it once every item is complete with
-> `anchor lift`, or remove the markdown file directly.
+> `anchor lift`, or delete it directly (finished or not) with `anchor rm <name>`.
 
 ***
 
@@ -170,11 +188,12 @@ If the `.anchor/checklists` directory doesn't exist, or no checklists match, `an
 
 ### `anchor validate`
 
-Checks that every checklist file under `.anchor/checklists/` is well-formed —
-valid frontmatter and correctly formatted checklist lines. Unlike `status`
-and `lift`, this always checks **every** checklist file, ignoring any
-`--environment`/`--projects` filters: a malformed checklist is a repo-hygiene
-bug regardless of environment.
+Checks that `.anchor/config.json` (if present) and every checklist file
+under `.anchor/checklists/` are well-formed — valid frontmatter and
+correctly formatted checklist lines. Unlike `status` and `lift`, this
+always checks **every** checklist file, ignoring any `--environment`/
+`--projects` filters: a malformed checklist or config is a repo-hygiene bug
+regardless of environment.
 
 **Output example:**
 

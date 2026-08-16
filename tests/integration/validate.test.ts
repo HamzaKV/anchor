@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { mkdir, rm } from 'node:fs/promises';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { useTempCwd, seedConfig } from '../helpers/temp-dir.js';
 import { copyChecklistFixture } from '../helpers/fixtures.js';
 import { validateAllChecklists } from '../../core/validate.js';
@@ -90,5 +90,51 @@ describe('validateAllChecklists', () => {
         logSpy.mockRestore();
         errorSpy.mockRestore();
         exitSpy.mockRestore();
+    });
+
+    it('exits with code 1 when config.json has non-array environments', async () => {
+        await writeFile('.anchor/config.json', JSON.stringify({ environments: 'dev', projects: [] }));
+
+        const exitSpy = vi.spyOn(process, 'exit').mockImplementation(code => {
+            throw new Error(`__process.exit:${code as number}`);
+        });
+        const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+        await expect(validateAllChecklists()).rejects.toThrow(/__process.exit:1/);
+
+        expect(errorSpy.mock.calls.some(c => String(c[0]).match(/'environments' must be an array/))).toBe(true);
+
+        errorSpy.mockRestore();
+        exitSpy.mockRestore();
+    });
+
+    it('exits with code 1 when config.json is not valid JSON', async () => {
+        await writeFile('.anchor/config.json', '{ not valid json');
+
+        const exitSpy = vi.spyOn(process, 'exit').mockImplementation(code => {
+            throw new Error(`__process.exit:${code as number}`);
+        });
+        const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+        await expect(validateAllChecklists()).rejects.toThrow(/__process.exit:1/);
+
+        expect(errorSpy.mock.calls.some(c => String(c[0]).match(/not valid JSON/))).toBe(true);
+
+        errorSpy.mockRestore();
+        exitSpy.mockRestore();
+    });
+
+    it('does not require config.json to exist', async () => {
+        await rm('.anchor/config.json', { force: true });
+        await copyChecklistFixture('completed.md');
+
+        const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+        await validateAllChecklists();
+
+        const lines = logSpy.mock.calls.map(c => String(c[0])).join('\n');
+        expect(lines).toMatch(/All checklists valid/);
+
+        logSpy.mockRestore();
     });
 });
