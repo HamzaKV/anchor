@@ -49,7 +49,7 @@
   "type": "module",
   "devDependencies": {
     "@biomejs/biome": "2.5.7",
-    "@changesets/cli": "^2.31.1",
+    "@changesets/cli": "^3.0.0",
     "@vitest/coverage-v8": "^4.1.9",
     "@types/execa": "^2.0.2",
     "@types/node": "^22.15.17",
