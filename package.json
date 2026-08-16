@@ -62,7 +62,7 @@
   },
   "dependencies": {
     "gray-matter": "^4.0.3",
-    "inquirer": "^12.6.3",
+    "inquirer": "^14.0.2",
     "unique-names-generator": "^4.7.1"
   },
   "keywords": [
