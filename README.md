@@ -93,7 +93,7 @@ Creates a new checklist. Prompts you to:
 
 * `--environment <env>` / `-e <env>`: Filter environments to preselect during prompt (or, combined with `--name`/`--items` below, the environments applied directly)
 * `--projects <projects>` / `-p <projects>`: Filter projects (comma seperated list) to preselect during prompt (or applied directly, see below)
-* `--name <name>` and `--items <items>`: Skip the interactive prompt entirely and create the checklist non-interactively — useful for scripting checklist creation in CI. Both flags are required together; `--environment`/`--projects` supply the environments/projects, and `--description <text>` is optional.
+* `--name <name>` and `--items <items>`: Skip the interactive prompt entirely and create the checklist non-interactively — useful for scripting checklist creation in CI. Both flags are required together, and `--environment` is also required in this mode (unlike the interactive prompt, there's no way to explicitly confirm an intentionally empty environment list, so a missing `--environment` is treated as a forgotten flag, not an empty selection). `--projects`/`--description <text>` stay optional.
 
 ```bash
 anchor set --name pr-456 --items "Update .env,Run DB migration" --environment prod --projects api

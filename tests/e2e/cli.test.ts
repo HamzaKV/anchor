@@ -165,6 +165,16 @@ describe('e2e: built CLI (anchor)', () => {
         expect(result.stderr).toMatch(/--name and --items must be provided together/);
     });
 
+    it('anchor set --name --items without --environment exits 1 instead of silently writing environments: []', async () => {
+        await mkdir('.anchor', { recursive: true });
+        await writeFile('.anchor/config.json', JSON.stringify({ environments: ['dev'], projects: [] }));
+
+        const result = await execaNode(DIST_BIN, ['set', '--name', 'pr-1', '--items', 'a,b'], { reject: false });
+        expect(result.exitCode).toBe(1);
+        expect(result.stderr).toMatch(/--environment is required/);
+        await expect(readdir('.anchor/checklists')).rejects.toThrow();
+    });
+
     it('anchor lift --dry-run previews without deleting, still exits 0', async () => {
         await mkdir('.anchor/checklists', { recursive: true });
         const content = [

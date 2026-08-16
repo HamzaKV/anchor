@@ -92,6 +92,13 @@ export const setChecklist = async (env?: string[], proj?: string[], nonInteracti
         throw new Error('Checklist name and items are required.');
     }
 
+    // Unlike the interactive checkbox (which can be left empty on purpose),
+    // a scripted run with no --environment is almost always a forgotten flag,
+    // not an intentional "applies nowhere" checklist — so require it.
+    if (nonInteractive && selectedEnvs.length === 0) {
+        throw new Error('--environment is required for non-interactive checklist creation.');
+    }
+
     const dir = root ? join(root, '.anchor', 'checklists') : '.anchor/checklists';
     if (!(await fileExists(dir))) await mkdir(dir, { recursive: true });
 

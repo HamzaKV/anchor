@@ -194,6 +194,12 @@ describe('setChecklist', () => {
         await expect(setChecklist(undefined, undefined, { name: '', items: 'a' })).rejects.toThrow(/Checklist name and items are required/);
     });
 
+    it('non-interactive: throws when --environment is missing, rather than silently writing environments: []', async () => {
+        await expect(setChecklist(undefined, undefined, { name: 'pr-1', items: 'a' })).rejects.toThrow(/--environment is required/);
+
+        await expect(readdir('.anchor/checklists')).rejects.toThrow(/ENOENT/);
+    });
+
     it('creates .anchor/checklists/ directory if missing', async () => {
         vi.mocked(inquirer.prompt).mockResolvedValueOnce({
             checklistName: 'pr-auto-mkdir',
